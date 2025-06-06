@@ -9,6 +9,9 @@ COPY ./.mvn/ ./.mvn
 COPY ./mvnw ./mvnw
 COPY ./pom.xml ./pom.xml
 
+# Add execute permission to the mvnw script
+RUN chmod +x ./mvnw  # <-- YEH NAYI LINE ADD KARNI HAI
+
 # Download all dependencies
 RUN ./mvnw dependency:go-offline
 
