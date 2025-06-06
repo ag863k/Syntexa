@@ -3,11 +3,10 @@ package com.syntexa.api;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication 
 public class SyntexaApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SyntexaApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(SyntexaApplication.class, args);
+    }
 }
