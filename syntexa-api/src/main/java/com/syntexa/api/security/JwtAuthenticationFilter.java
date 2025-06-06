@@ -34,30 +34,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        final String username;
+
+        // ## DEBUGGING START ##
+        System.out.println("\n====== [JWT FILTER] - Request Received for URL: " + request.getRequestURI() + " ======");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("[JWT FILTER] - No JWT Token found in Header. Passing to next filter.");
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt = authHeader.substring(7);
-        final String username = jwtService.extractUsername(jwt);
+        jwt = authHeader.substring(7);
+        System.out.println("[JWT FILTER] - Token Found.");
+
+        try {
+            username = jwtService.extractUsername(jwt);
+            System.out.println("[JWT FILTER] - Username extracted from token: " + username);
+        } catch (Exception e) {
+            System.out.println("[JWT FILTER] - ERROR! Could not extract username. Reason: " + e.getMessage());
+            filterChain.doFilter(request, response); // Let security chain handle the error
+            return;
+        }
+
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            System.out.println("[JWT FILTER] - User is not yet authenticated. Loading user details from UserService...");
             UserDetails userDetails = this.userService.loadUserByUsername(username);
 
             if (jwtService.isTokenValid(jwt, userDetails)) {
+                System.out.println("[JWT FILTER] - TOKEN IS VALID. Authenticating user...");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
+                        userDetails, null, userDetails.getAuthorities()
                 );
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                System.out.println("[JWT FILTER] - User successfully authenticated and set in Security Context.");
+            } else {
+                System.out.println("[JWT FILTER] - ERROR! Token is INVALID.");
             }
+        } else {
+            System.out.println("[JWT FILTER] - Username is null OR user is already authenticated.");
         }
+
         filterChain.doFilter(request, response);
+        System.out.println("====== [JWT FILTER] - Filter chain continued. ======");
+        // ## DEBUGGING END ##
     }
 }
