@@ -19,13 +19,11 @@ public class ProblemController {
         this.problemService = problemService;
     }
 
-    
     @GetMapping
     public List<Problem> getAllProblems() {
         return problemService.getAllProblems();
     }
 
-    
     @GetMapping("/{id}")
     public ResponseEntity<Problem> getProblemById(@PathVariable Long id) {
         return problemService.getProblemById(id)
@@ -33,7 +31,7 @@ public class ProblemController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    
+    // Endpoint to create a new problem
     @PostMapping
     public ResponseEntity<Problem> createProblem(@RequestBody Problem problem) {
         Problem createdProblem = problemService.createProblem(problem);
