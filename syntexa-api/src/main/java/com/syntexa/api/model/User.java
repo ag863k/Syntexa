@@ -24,7 +24,7 @@ public class User implements UserDetails {
     @Column(name = "password_hash", nullable = false)
     private String password;
 
-    
+    // --- CONSTRUCTORS ---
     public User() {
     }
 
@@ -35,7 +35,7 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    
+    // --- GETTERS AND SETTERS ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUsername() { return username; }
@@ -45,7 +45,7 @@ public class User implements UserDetails {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    
+    // --- UserDetails METHODS ---
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
