@@ -24,7 +24,8 @@ public class ProblemService {
     public Optional<Problem> getProblemById(Long id) {
         return problemRepository.findById(id);
     }
-
+    
+    // This method allows creating a new problem
     public Problem createProblem(Problem problem) {
         return problemRepository.save(problem);
     }
