@@ -33,6 +33,7 @@ public class AuthController {
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         try {
             User newUser = new User();
+            // Ensure User class has these methods or replace with appropriate logic
             newUser.setUsername(signUpRequest.getUsername());
             newUser.setEmail(signUpRequest.getEmail());
             newUser.setPassword(signUpRequest.getPassword());
@@ -40,6 +41,8 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully! Welcome " + registeredUser.getUsername());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
 
@@ -57,6 +60,8 @@ public class AuthController {
             return ResponseEntity.ok(jwtResponse);
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Invalid username or password");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
 }

@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 
 @RestController
@@ -20,20 +22,29 @@ public class ProblemController {
     }
 
     @GetMapping
-    public List<Problem> getAllProblems() {
-        return problemService.getAllProblems();
+    public ResponseEntity<List<Problem>> getAllProblems() {
+        try {
+            List<Problem> problems = problemService.getAllProblems();
+            return ResponseEntity.ok(problems);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Problem> getProblemById(@PathVariable Long id) {
         return problemService.getProblemById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(problem -> ResponseEntity.ok(problem))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Problem not found"));
     }
 
     @PostMapping
-    public ResponseEntity<Problem> createProblem(@Valid @RequestBody ProblemCreateRequest request) {
-        Problem createdProblem = problemService.createProblem(request);
-        return new ResponseEntity<>(createdProblem, HttpStatus.CREATED);
+    public ResponseEntity<?> createProblem(@Valid @RequestBody ProblemCreateRequest request) {
+        try {
+            Problem createdProblem = problemService.createProblem(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdProblem);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

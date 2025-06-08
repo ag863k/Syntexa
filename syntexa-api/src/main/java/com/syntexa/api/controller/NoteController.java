@@ -21,12 +21,18 @@ public class NoteController {
     }
 
     @PostMapping
-    public ResponseEntity<Note> createNote(
+    public ResponseEntity<?> createNote(
             @PathVariable Long problemId,
             @Valid @RequestBody NoteCreateRequest request,
             @AuthenticationPrincipal User user
     ) {
-        Note createdNote = noteService.createNote(problemId, request, user);
-        return new ResponseEntity<>(createdNote, HttpStatus.CREATED);
+        try {
+            Note createdNote = noteService.createNote(problemId, request, user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdNote);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
     }
 }

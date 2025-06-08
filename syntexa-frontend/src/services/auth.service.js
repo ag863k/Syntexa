@@ -3,18 +3,25 @@ import axios from 'axios';
 // IMPORTANT: Your LIVE Render Backend URL
 const API_URL = "https://syntexa-api.onrender.com/api/v1/auth/";
 
-const signup = (username, email, password) => {
-    return axios.post(API_URL + "signup", { username, email, password });
+const signup = async (username, email, password) => {
+    try {
+        const response = await axios.post(API_URL + "signup", { username, email, password });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || error.message;
+    }
 };
 
-const login = (username, password) => {
-    return axios.post(API_URL + "login", { username, password })
-        .then((response) => {
-            if (response.data.token) {
-                localStorage.setItem("user", JSON.stringify(response.data));
-            }
-            return response.data;
-        });
+const login = async (username, password) => {
+    try {
+        const response = await axios.post(API_URL + "login", { username, password });
+        if (response.data.token) {
+            localStorage.setItem("user", JSON.stringify(response.data));
+        }
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || error.message;
+    }
 };
 
 const logout = () => {
@@ -29,5 +36,10 @@ const getCurrentUser = () => {
     }
 };
 
-const AuthService = { signup, login, logout, getCurrentUser };
+const getToken = () => {
+    const user = getCurrentUser();
+    return user?.token || null;
+};
+
+const AuthService = { signup, login, logout, getCurrentUser, getToken };
 export default AuthService;

@@ -17,6 +17,8 @@ import java.util.function.Function;
 @Component
 public class JwtService {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JwtService.class);
+
     @Value("${app.jwt.secret}")
     private String jwtSecret;
 
@@ -24,6 +26,7 @@ public class JwtService {
     private int jwtExpirationMs;
 
     public String extractUsername(String token) {
+        logger.info("Extracting username from token.");
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -33,10 +36,12 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
+        logger.info("Generating token for user: {}", userDetails.getUsername());
         return generateToken(new HashMap<>(), userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        logger.info("Generating token with extra claims for user: {}", userDetails.getUsername());
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
@@ -48,7 +53,9 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        boolean isValid = (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        logger.info("Token validation result for user {}: {}", userDetails.getUsername(), isValid);
+        return isValid;
     }
 
     private boolean isTokenExpired(String token) {

@@ -6,10 +6,14 @@ import com.syntexa.api.model.Problem;
 import com.syntexa.api.model.User;
 import com.syntexa.api.repository.NoteRepository;
 import com.syntexa.api.repository.ProblemRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class NoteService {
+
+    private static final Logger log = LoggerFactory.getLogger(NoteService.class);
 
     private final NoteRepository noteRepository;
     private final ProblemRepository problemRepository;
@@ -19,10 +23,13 @@ public class NoteService {
         this.problemRepository = problemRepository;
     }
 
-    // Updated to use the DTO
     public Note createNote(Long problemId, NoteCreateRequest request, User author) {
+        log.info("Creating a new note for problem ID: {}", problemId);
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new RuntimeException("Error: Problem not found with id: " + problemId));
+                .orElseThrow(() -> {
+                    log.error("Problem not found with ID: {}", problemId);
+                    return new RuntimeException("Error: Problem not found with id: " + problemId);
+                });
 
         Note newNote = new Note();
         newNote.setApproachTitle(request.getApproachTitle());
@@ -30,6 +37,8 @@ public class NoteService {
         newNote.setProblem(problem);
         newNote.setAuthor(author);
 
-        return noteRepository.save(newNote);
+        Note savedNote = noteRepository.save(newNote);
+        log.info("Note created successfully with ID: {}", savedNote.getId());
+        return savedNote;
     }
 }

@@ -1,5 +1,6 @@
 package com.syntexa.api.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,10 +18,10 @@ public class HealthCheckController {
      * Access this endpoint via GET /api/v1/health to receive a status message.
      * </p>
      *
-     * @return a String message indicating the API status.
+     * @return a ResponseEntity with a status message.
      */
     @GetMapping("/health")
-    public String healthCheck() {
-        return "Syntexa API is operational! Version 1.0. Systems nominal.";
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Syntexa API is operational! Version 1.0. Systems nominal.");
     }
 }

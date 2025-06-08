@@ -11,7 +11,6 @@ public class DemoController {
 
     @GetMapping("/hello-secure")
     public ResponseEntity<String> sayHelloSecure() {
-        
-        return ResponseEntity.ok("Hello from a SECURE endpoint! Aap authenticated hain!");
+        return ResponseEntity.ok("Hello from a SECURE endpoint! You are authenticated!");
     }
 }

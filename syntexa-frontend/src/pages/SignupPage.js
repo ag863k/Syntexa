@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import AuthService from '../services/auth.service';
 
 const PasswordRequirement = ({ meets, label }) => (
@@ -15,8 +15,8 @@ const SignupPage = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [successful, setSuccessful] = useState(false);
-    const navigate = useNavigate();
 
+    // Password requirements check
     const hasNumber = new RegExp(/[0-9]/).test(password);
     const hasSpecialChar = new RegExp(/[!@#$%^&*]/).test(password);
     const hasMinLength = password.length >= 6;
@@ -27,6 +27,7 @@ const SignupPage = () => {
         setSuccessful(false);
         setLoading(true);
 
+        // Check password requirements before submitting
         if (!hasMinLength || !hasNumber || !hasSpecialChar) {
              setMessage("Password does not meet all requirements.");
              setLoading(false);
@@ -35,10 +36,9 @@ const SignupPage = () => {
 
         AuthService.signup(username, email, password).then(
             (response) => {
-                setMessage(response.data + " Redirecting to login...");
+                setMessage(response.data);
                 setSuccessful(true);
                 setLoading(false);
-                setTimeout(() => navigate('/login'), 2000);
             },
             (error) => {
                 const resMessage = (error.response?.data) || error.message || error.toString();
@@ -50,12 +50,16 @@ const SignupPage = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-[80vh] px-4">
-            <div className="w-full max-w-md p-8 space-y-6 bg-slate-800/50 rounded-xl shadow-lg backdrop-blur-sm border border-cyan-500/20">
-                <h2 className="text-3xl font-bold text-center text-white">Create an Account</h2>
+        <div className="flex items-center justify-center min-h-[80vh] px-4 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+            <div className="w-full max-w-md p-8 space-y-6 bg-slate-800/50 rounded-xl shadow-lg backdrop-blur-sm border border-purple-500/20">
+                <h2 className="text-3xl font-bold text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+                    Create an Account
+                </h2>
                 <p className="text-center text-gray-400">
                     Already have an account?{' '}
-                    <Link to="/login" className="font-medium text-cyan-400 hover:text-cyan-300">Sign In</Link>
+                    <Link to="/login" className="font-medium text-purple-400 hover:text-purple-300">
+                        Sign In
+                    </Link>
                 </p>
                 <form onSubmit={handleSignup} className="space-y-6">
                     <div>
@@ -72,13 +76,14 @@ const SignupPage = () => {
                         <label htmlFor="password" className="text-sm font-bold text-gray-400 block mb-2">Password</label>
                         <input type="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)}
                             className="w-full p-3 text-white bg-gray-700/50 rounded-md border border-gray-600 focus:border-cyan-400 focus:ring focus:ring-cyan-400 focus:ring-opacity-50 transition" required />
+                        {}
                         <div className="mt-2 pl-1">
                             <PasswordRequirement meets={hasMinLength} label="At least 6 characters long" />
                             <PasswordRequirement meets={hasNumber} label="Contains a number" />
                             <PasswordRequirement meets={hasSpecialChar} label="Contains a special character (!@#...)" />
                         </div>
                     </div>
-                    <button type="submit" className="w-full py-3 px-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-md text-white font-bold transition-all duration-300 disabled:opacity-50" disabled={loading}>
+                    <button type="submit" className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 rounded-md text-white font-bold transition-all duration-300 disabled:opacity-50" disabled={loading}>
                         {loading ? 'Signing Up...' : 'Sign Up'}
                     </button>
                 </form>
@@ -91,4 +96,5 @@ const SignupPage = () => {
         </div>
     );
 };
+
 export default SignupPage;

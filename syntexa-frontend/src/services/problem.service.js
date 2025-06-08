@@ -5,32 +5,44 @@ const API_URL = "https://syntexa-api.onrender.com/api/v1/";
 
 // This helper function gets the JWT from local storage for protected requests
 const authHeader = () => {
-    const user = AuthService.getCurrentUser();
-    if (user && user.token) {
-        return { Authorization: 'Bearer ' + user.token };
-    } else {
-        return {};
+    const token = AuthService.getToken();
+    return token ? { Authorization: 'Bearer ' + token } : {};
+};
+
+const getAllProblems = async () => {
+    try {
+        const response = await axios.get(API_URL + "problems");
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || error.message;
     }
 };
 
-const getAllProblems = () => {
-    // Viewing problems is public, no auth header needed
-    return axios.get(API_URL + "problems");
+const getProblemById = async (id) => {
+    try {
+        const response = await axios.get(API_URL + "problems/" + id);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || error.message;
+    }
 };
 
-const getProblemById = (id) => {
-    // Viewing a single problem is public
-    return axios.get(API_URL + "problems/" + id);
+const createProblem = async (problemData) => {
+    try {
+        const response = await axios.post(API_URL + "problems", problemData, { headers: authHeader() });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || error.message;
+    }
 };
 
-const createProblem = (problemData) => {
-    // Creating a problem is protected
-    return axios.post(API_URL + "problems", problemData, { headers: authHeader() });
-}
-
-const addNoteToProblem = (problemId, noteData) => {
-    // Adding a note is protected
-    return axios.post(API_URL + `problems/${problemId}/notes`, noteData, { headers: authHeader() });
+const addNoteToProblem = async (problemId, noteData) => {
+    try {
+        const response = await axios.post(API_URL + `problems/${problemId}/notes`, noteData, { headers: authHeader() });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || error.message;
+    }
 };
 
 const ProblemService = {
