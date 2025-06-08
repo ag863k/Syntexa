@@ -1,75 +1,39 @@
 package com.syntexa.api.controller;
 
-import com.syntexa.api.dto.JwtResponse;
-import com.syntexa.api.dto.LoginRequest;
-import com.syntexa.api.dto.SignUpRequest;
-import com.syntexa.api.model.User;
-import com.syntexa.api.security.JwtService;
-import com.syntexa.api.service.UserService;
+import com.syntexa.api.dto.ProblemCreateRequest;
+import com.syntexa.api.model.Problem;
+import com.syntexa.api.service.ProblemService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/auth")
-public class AuthController {
+@RequestMapping("/api/v1/problems")
+public class ProblemController {
 
-    private final UserService userService;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
+    private final ProblemService problemService;
 
-    public AuthController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
-        this.userService = userService;
-        this.jwtService = jwtService;
-        this.authenticationManager = authenticationManager;
+    public ProblemController(ProblemService problemService) {
+        this.problemService = problemService;
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        try {
-            User newUser = new User();
-            newUser.setUsername(signUpRequest.getUsername());
-            newUser.setEmail(signUpRequest.getEmail());
-            newUser.setPassword(signUpRequest.getPassword());
-            
-            User registeredUser = userService.registerUser(newUser);
-            
-            return ResponseEntity.status(HttpStatus.CREATED)
-                                 .body("User registered successfully! Welcome " + registeredUser.getUsername());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    @GetMapping
+    public List<Problem> getAllProblems() {
+        return problemService.getAllProblems();
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    loginRequest.getUsername(),
-                    loginRequest.getPassword()
-                )
-            );
-            
-            User user = (User) authentication.getPrincipal();
-            String jwtToken = jwtService.generateToken(user);
+    @GetMapping("/{id}")
+    public ResponseEntity<Problem> getProblemById(@PathVariable Long id) {
+        return problemService.getProblemById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
-            JwtResponse jwtResponse = new JwtResponse(
-                jwtToken,
-                user.getId(),
-                user.getUsername(),
-                user.getEmail()
-            );
-            
-            return ResponseEntity.ok(jwtResponse);
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                 .body("Error: Invalid username or password");
-        }
+    @PostMapping
+    public ResponseEntity<Problem> createProblem(@Valid @RequestBody ProblemCreateRequest request) {
+        Problem createdProblem = problemService.createProblem(request);
+        return new ResponseEntity<>(createdProblem, HttpStatus.CREATED);
     }
 }

@@ -27,9 +27,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Dependencies are injected into the methods that need them, not the class constructor.
-    // This is a key part of the fix.
-
     /**
      * Defines the AuthenticationProvider bean. This is the component that tells Spring Security
      * how to fetch user details and verify passwords.

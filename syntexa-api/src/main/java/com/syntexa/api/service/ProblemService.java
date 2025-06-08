@@ -1,5 +1,6 @@
 package com.syntexa.api.service;
 
+import com.syntexa.api.dto.ProblemCreateRequest;
 import com.syntexa.api.model.Problem;
 import com.syntexa.api.repository.ProblemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,12 @@ public class ProblemService {
     public Optional<Problem> getProblemById(Long id) {
         return problemRepository.findById(id);
     }
-    
-    public Problem createProblem(Problem problem) {
-        return problemRepository.save(problem);
+
+    // Updated to use the DTO
+    public Problem createProblem(ProblemCreateRequest request) {
+        Problem newProblem = new Problem();
+        newProblem.setTitle(request.getTitle());
+        newProblem.setDescription(request.getDescription());
+        return problemRepository.save(newProblem);
     }
 }

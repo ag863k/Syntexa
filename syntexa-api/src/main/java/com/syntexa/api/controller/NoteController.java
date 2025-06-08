@@ -1,75 +1,32 @@
 package com.syntexa.api.controller;
 
-import com.syntexa.api.dto.JwtResponse;
-import com.syntexa.api.dto.LoginRequest;
-import com.syntexa.api.dto.SignUpRequest;
+import com.syntexa.api.dto.NoteCreateRequest;
+import com.syntexa.api.model.Note;
 import com.syntexa.api.model.User;
-import com.syntexa.api.security.JwtService;
-import com.syntexa.api.service.UserService;
+import com.syntexa.api.service.NoteService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/auth")
-public class AuthController {
+@RequestMapping("/api/v1/problems/{problemId}/notes")
+public class NoteController {
 
-    private final UserService userService;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
+    private final NoteService noteService;
 
-    public AuthController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
-        this.userService = userService;
-        this.jwtService = jwtService;
-        this.authenticationManager = authenticationManager;
+    public NoteController(NoteService noteService) {
+        this.noteService = noteService;
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        try {
-            User newUser = new User();
-            newUser.setUsername(signUpRequest.getUsername());
-            newUser.setEmail(signUpRequest.getEmail());
-            newUser.setPassword(signUpRequest.getPassword());
-            
-            User registeredUser = userService.registerUser(newUser);
-            
-            return ResponseEntity.status(HttpStatus.CREATED)
-                                 .body("User registered successfully! Welcome " + registeredUser.getUsername());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    loginRequest.getUsername(),
-                    loginRequest.getPassword()
-                )
-            );
-            
-            User user = (User) authentication.getPrincipal();
-            String jwtToken = jwtService.generateToken(user);
-
-            JwtResponse jwtResponse = new JwtResponse(
-                jwtToken,
-                user.getId(),
-                user.getUsername(),
-                user.getEmail()
-            );
-            
-            return ResponseEntity.ok(jwtResponse);
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body("Error: Invalid username or password");
-        }
+    @PostMapping
+    public ResponseEntity<Note> createNote(
+            @PathVariable Long problemId,
+            @Valid @RequestBody NoteCreateRequest request,
+            @AuthenticationPrincipal User user
+    ) {
+        Note createdNote = noteService.createNote(problemId, request, user);
+        return new ResponseEntity<>(createdNote, HttpStatus.CREATED);
     }
 }
