@@ -1,6 +1,6 @@
 # Syntexa: Coding Notes Hub
 
-**Coding Notes Hub** is a collaborative platform where developers come together to share coding problem topics along with their notes, solutions, and various approaches. This pull request represents a major architectural pivot for the Syntexa application—from a "Personalized Coding Challenge Curator" to a more community-driven "Coding Notes Hub."
+**Syntexa: Coding Notes Hub** is a collaborative platform where developers come together to share coding problem topics along with their notes, solutions, and various approaches. This pull request represents a major architectural pivot for the Syntexa application—from a "Personalized Coding Challenge Curator" to a more community-driven "Coding Notes Hub."
 
 ---
 
