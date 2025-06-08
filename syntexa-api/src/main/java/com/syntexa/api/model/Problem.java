@@ -1,14 +1,12 @@
 package com.syntexa.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.Data;
+import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@Data
 @Entity
-@Table(name = "problems") 
+@Table(name = "problems")
 public class Problem {
 
     @Id
@@ -21,7 +19,17 @@ public class Problem {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnoreProperties("problem")
-    private List<Note> notes;
+    private List<Note> notes = new ArrayList<>();
+
+    // --- GETTERS AND SETTERS ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public List<Note> getNotes() { return notes; }
+    public void setNotes(List<Note> notes) { this.notes = notes; }
 }

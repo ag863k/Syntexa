@@ -1,16 +1,5 @@
 package com.syntexa.api.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-/**
- * Data Transfer Object for JWT responses.
- * This DTO includes the JWT token string, token type, and user details.
- */
-@Getter
-@Setter
-@NoArgsConstructor
 public class JwtResponse {
 
     private String token;
@@ -19,36 +8,23 @@ public class JwtResponse {
     private String username;
     private String email;
 
-    /**
-     * Full constructor allowing a custom token type.
-     *
-     * @param token    the JWT token
-     * @param type     the token type (typically "Bearer")
-     * @param id       the user's ID
-     * @param username the user's username
-     * @param email    the user's email
-     */
-    public JwtResponse(String token, String type, Long id, String username, String email) {
-        this.token = token;
-        this.type = type;
+    // --- CONSTRUCTOR ---
+    public JwtResponse(String accessToken, Long id, String username, String email) {
+        this.token = accessToken;
         this.id = id;
         this.username = username;
         this.email = email;
     }
 
-    /**
-     * Convenience constructor with default token type ("Bearer").
-     *
-     * @param token    the JWT token
-     * @param id       the user's ID
-     * @param username the user's username
-     * @param email    the user's email
-     */
-    public JwtResponse(String token, Long id, String username, String email) {
-        this.token = token;
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.type = "Bearer"; // Set default token type.
-    }
+    // --- GETTERS AND SETTERS ---
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 }

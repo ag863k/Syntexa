@@ -1,53 +1,75 @@
 package com.syntexa.api.controller;
 
-import com.syntexa.api.model.Note;
+import com.syntexa.api.dto.JwtResponse;
+import com.syntexa.api.dto.LoginRequest;
+import com.syntexa.api.dto.SignUpRequest;
 import com.syntexa.api.model.User;
-import com.syntexa.api.service.NoteService;
+import com.syntexa.api.security.JwtService;
+import com.syntexa.api.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/problems/{problemId}/notes")
-public class NoteController {
+@RequestMapping("/api/v1/auth")
+public class AuthController {
 
-    private final NoteService noteService;
+    private final UserService userService;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    public NoteController(NoteService noteService) {
-        this.noteService = noteService;
+    public AuthController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
+        this.userService = userService;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
     }
 
-    /**
-     * Endpoint to create a new note for a specified problem.
-     *
-     * @param problemId The ID of the problem to which the note will be added.
-     * @param note      The note object containing note details.
-     * @param user      The authenticated user (populated by Spring Security)
-     * @return ResponseEntity with the created note or an error message.
-     */
-    @PostMapping
-    public ResponseEntity<?> createNote(
-            @PathVariable("problemId") Long problemId,
-            @Valid @RequestBody Note note,
-            @AuthenticationPrincipal User user
-    ) {
-        // Check that a user is authenticated.
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Unauthorized");
-        }
-        
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         try {
-            // Create the note using the NoteService.
-            Note createdNote = noteService.createNote(problemId, note, user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdNote);
-        } catch (Exception e) {
-            // Return an internal server error with the exception message.
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("An error occurred while creating the note: " + e.getMessage());
+            User newUser = new User();
+            newUser.setUsername(signUpRequest.getUsername());
+            newUser.setEmail(signUpRequest.getEmail());
+            newUser.setPassword(signUpRequest.getPassword());
+            
+            User registeredUser = userService.registerUser(newUser);
+            
+            return ResponseEntity.status(HttpStatus.CREATED)
+                                 .body("User registered successfully! Welcome " + registeredUser.getUsername());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    loginRequest.getUsername(),
+                    loginRequest.getPassword()
+                )
+            );
+            
+            User user = (User) authentication.getPrincipal();
+            String jwtToken = jwtService.generateToken(user);
+
+            JwtResponse jwtResponse = new JwtResponse(
+                jwtToken,
+                user.getId(),
+                user.getUsername(),
+                user.getEmail()
+            );
+            
+            return ResponseEntity.ok(jwtResponse);
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                 .body("Error: Invalid username or password");
         }
     }
 }

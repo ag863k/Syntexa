@@ -5,11 +5,8 @@ import com.syntexa.api.model.Problem;
 import com.syntexa.api.model.User;
 import com.syntexa.api.repository.NoteRepository;
 import com.syntexa.api.repository.ProblemRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class NoteService {
@@ -23,28 +20,16 @@ public class NoteService {
         this.problemRepository = problemRepository;
     }
 
-    /**
-     * Creates a new note for the specified problem with the given author.
-     *
-     * @param problemId the ID of the problem to which the note will be linked
-     * @param note the note details including content and metadata
-     * @param author the user creating the note
-     * @return the saved Note object
-     * @throws ResponseStatusException if the problem with the given ID is not found
-     */
-    @Transactional
     public Note createNote(Long problemId, Note note, User author) {
-        // Find the problem by its ID. If not present, throw a NOT_FOUND exception.
+        // Find the problem by its ID, or throw an exception if not found.
         Problem problem = problemRepository.findById(problemId)
-            .orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Problem not found with id: " + problemId)
-            );
+                .orElseThrow(() -> new RuntimeException("Problem not found with id: " + problemId));
 
-        // Link the note to the retrieved problem and assign the author.
+        // Link the note to the problem and the author
         note.setProblem(problem);
         note.setAuthor(author);
 
-        // Save and return the note.
+        // Save the new note to the database
         return noteRepository.save(note);
     }
 }

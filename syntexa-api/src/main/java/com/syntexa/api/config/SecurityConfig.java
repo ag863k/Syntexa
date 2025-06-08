@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -28,81 +27,67 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Define a password encoder bean.
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
-    
-    // Configure the AuthenticationProvider using your UserService and PasswordEncoder.
+    // Dependencies are injected into the methods that need them, not the class constructor.
+    // This is a key part of the fix.
+
+    /**
+     * Defines the AuthenticationProvider bean. This is the component that tells Spring Security
+     * how to fetch user details and verify passwords.
+     */
     @Bean
     public AuthenticationProvider authenticationProvider(UserService userService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        // Set the service to lookup users
-        authProvider.setUserDetailsService(userService);
-        // Use BCrypt for verifying passwords
-        authProvider.setPasswordEncoder(passwordEncoder);
+        authProvider.setUserDetailsService(userService); // Uses our UserService to find users
+        authProvider.setPasswordEncoder(passwordEncoder); // Uses the BCrypt encoder from AppConfig
         return authProvider;
     }
 
-    // Expose the AuthenticationManager, needed for authentication.
+    /**
+     * Exposes the AuthenticationManager as a bean, which is needed to manually process login requests in our AuthController.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-    
-    // Explicitly define a JwtAuthenticationFilter bean if it isn't already a component.
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
-    }
 
-    // Define the CORS configuration to allow requests from your frontend.
+    /**
+     * Configures CORS (Cross-Origin Resource Sharing) to allow requests from our frontend.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow requests from your React app and your deployed frontend URL
+        // IMPORTANT: Add your final Netlify URL here when you deploy the frontend
         configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://your-netlify-app-name.netlify.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Apply these settings to all endpoints
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", configuration); // Apply this rule to all paths
         return source;
     }
-    
-    // Build the security filter chain.
+
+    /**
+     * Defines the main security filter chain that protects our API endpoints.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(
         HttpSecurity http,
         AuthenticationProvider authenticationProvider,
         JwtAuthenticationFilter jwtAuthFilter
     ) throws Exception {
-
         http
-            // Enable CORS with our configuration
-            .cors(withDefaults())
-            // Disable CSRF protection (common for REST APIs)
-            .csrf(csrf -> csrf.disable())
-            // Authorization settings
+            .cors(withDefaults()) // Enable CORS using the bean defined above
+            .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless REST APIs
             .authorizeHttpRequests(authorize -> authorize
-                // Permit all OPTIONS requests used in CORS preflight
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Permit access to auth and health endpoints
-                .requestMatchers("/api/v1/auth/**", "/api/v1/health").permitAll()
-                // Permit GET requests for problems (publicly accessible)
-                .requestMatchers(HttpMethod.GET, "/api/v1/problems/**").permitAll()
-                // All other requests require authentication
-                .anyRequest().authenticated()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow CORS preflight requests
+                .requestMatchers("/api/v1/auth/**", "/api/v1/health").permitAll() // Public auth and health endpoints
+                .requestMatchers(HttpMethod.GET, "/api/v1/problems/**").permitAll() // Allow anyone to view problems
+                .anyRequest().authenticated() // All other requests require a valid token
             )
-            // Ensure the session is stateless (as common for JWT-based auth)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // Set the custom authentication provider
-            .authenticationProvider(authenticationProvider)
-            // Add the JWT filter before the username/password filter
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No server-side sessions
+            .authenticationProvider(authenticationProvider) // Use our custom authentication provider
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); // Add our JWT filter
 
         return http.build();
     }
