@@ -4,6 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Data Transfer Object for a login request.
+ * It validates that both username and password are not blank.
+ */
 @Data
 @NoArgsConstructor
 public class LoginRequest {

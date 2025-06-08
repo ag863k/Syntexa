@@ -28,52 +28,77 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // Needed to encode and verify passwords.
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+    
+    // Configure the AuthenticationProvider using your UserService and PasswordEncoder.
     @Bean
     public AuthenticationProvider authenticationProvider(UserService userService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        // Tell the provider how to find users
+        // Tell the provider how to lookup users
         authProvider.setUserDetailsService(userService);
-        // Tell the provider which password encoder to use
+        // Use BCrypt to verify passwords
         authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
 
+    // Expose the AuthenticationManager, which is needed for the login process.
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    // Define the CORS configuration: allow your React app's URL and common HTTP methods.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow requests from your local React app (and your deployed frontend later)
+        // Allow requests from these origins (adjust with your production URL if needed)
         configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://your-netlify-app-name.netlify.app"));
+        // Allow these HTTP methods
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Allow all headers (adjust if necessary)
         configuration.setAllowedHeaders(List.of("*"));
+        // Allow credentials such as cookies; required if your frontend sends them
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Apply the CORS configuration to all endpoints
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
+    // Configure the security filter chain.
     @Bean
     public SecurityFilterChain securityFilterChain(
         HttpSecurity http,
         AuthenticationProvider authenticationProvider,
         JwtAuthenticationFilter jwtAuthFilter
     ) throws Exception {
+
         http
-            .cors(withDefaults()) // Enable CORS using the corsConfigurationSource bean
+            // Enable CORS using our provided CorsConfigurationSource
+            .cors(withDefaults())
+            // Disable CSRF protection (suitable for stateless REST APIs)
             .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests
-                    .requestMatchers("/api/v1/auth/**", "/api/v1/health").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/problems/**").permitAll()
-                    .anyRequest().authenticated()
+            // Configure URL-based authorization
+            .authorizeHttpRequests(authorize -> authorize
+                // Permit all OPTIONS requests (used for CORS preflight)
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // Permit endpoints for authentication and health check
+                .requestMatchers("/api/v1/auth/**", "/api/v1/health").permitAll()
+                // Permit GET requests for problems (publicly viewable)
+                .requestMatchers(HttpMethod.GET, "/api/v1/problems/**").permitAll()
+                // All other requests must be authenticated
+                .anyRequest().authenticated()
             )
+            // Specify stateless session; backend does not use HTTP sessions.
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Configure our AuthenticationProvider
             .authenticationProvider(authenticationProvider)
+            // Insert our JWT filter before the standard username/password filter.
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

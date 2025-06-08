@@ -21,7 +21,14 @@ public class NoteController {
         this.noteService = noteService;
     }
 
-    // Endpoint to create a new note for a specific problem
+    /**
+     * Endpoint to create a new note for a specified problem.
+     *
+     * @param problemId The ID of the problem to which the note will be added.
+     * @param note      The note object containing note details.
+     * @param user      The authenticated user (populated by Spring Security)
+     * @return ResponseEntity with the created note or an error message.
+     */
     @PostMapping
     public ResponseEntity<?> createNote(
             @PathVariable("problemId") Long problemId,
@@ -32,8 +39,15 @@ public class NoteController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Unauthorized");
         }
-
-        Note createdNote = noteService.createNote(problemId, note, user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdNote);
+        
+        try {
+            // Create the note using the NoteService.
+            Note createdNote = noteService.createNote(problemId, note, user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdNote);
+        } catch (Exception e) {
+            // Return an internal server error with the exception message.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("An error occurred while creating the note: " + e.getMessage());
+        }
     }
 }

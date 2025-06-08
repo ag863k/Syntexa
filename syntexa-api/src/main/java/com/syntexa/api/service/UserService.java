@@ -24,10 +24,10 @@ public class UserService implements UserDetailsService {
 
     /**
      * Registers a new user after validating that the username and email are unique.
-     * Password is encoded before storing the user.
+     * The password is encoded before storing the user.
      *
-     * @param userToRegister the user to register
-     * @return the registered user
+     * @param userToRegister the user object to register
+     * @return the registered user object
      * @throws IllegalArgumentException if the username or email is already in use
      */
     @Transactional
@@ -38,23 +38,24 @@ public class UserService implements UserDetailsService {
         if (userRepository.existsByEmail(userToRegister.getEmail())) {
             throw new IllegalArgumentException("Error: Email is already in use!");
         }
-        // Encode the user's password
+        // Encode the user's password before saving
         String hashedPassword = passwordEncoder.encode(userToRegister.getPassword());
         userToRegister.setPassword(hashedPassword);
+
+        // Save and return the new user
         return userRepository.save(userToRegister);
     }
 
     /**
-     * Loads the user details based on the provided username.
+     * Loads user details based on the provided username.
      *
      * @param username the username to search for
-     * @return UserDetails representing the user
+     * @return a UserDetails object representing the user
      * @throws UsernameNotFoundException if the user with the given username is not found
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found with username: " + username));
+            .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 }
