@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ProblemService from '../services/problem.service';
 import AuthService from '../services/auth.service';
 import { copyToClipboard } from '../utils/clipboard';
@@ -13,6 +13,7 @@ const ProblemsListPage = () => {
     const [newProblemDescription, setNewProblemDescription] = useState('');
     const [profile, setProfile] = useState(null);
     const currentUser = AuthService.getCurrentUser();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchProblems();
@@ -43,11 +44,14 @@ const ProblemsListPage = () => {
     const handleCreateProblem = (e) => {
         e.preventDefault();
         ProblemService.createProblem({ title: newProblemTitle, description: newProblemDescription }).then(
-            () => {
-                fetchProblems(); // Refresh the list
+            (createdProblem) => {
                 setShowCreateForm(false);
                 setNewProblemTitle('');
                 setNewProblemDescription('');
+                fetchProblems(); // Optionally refresh the list
+                if (createdProblem && createdProblem.id) {
+                    navigate(`/problems/${createdProblem.id}`);
+                }
             },
             (error) => {
                 alert("Failed to create problem: " + (error.response?.data?.message || error.toString()));

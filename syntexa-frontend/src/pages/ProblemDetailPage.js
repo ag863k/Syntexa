@@ -28,7 +28,7 @@ const ProblemDetailPage = () => {
     const fetchProblem = useCallback(() => {
         ProblemService.getProblemById(id).then(
             (response) => {
-                setProblem(response.data);
+                setProblem(response); // FIX: use response, not response.data
                 setLoading(false);
             },
             (error) => {
@@ -129,7 +129,6 @@ const ProblemDetailPage = () => {
             <div className="my-8 border-t border-gray-700"></div>
             
             <h2 className="text-3xl font-bold text-purple-400 mb-6">My Approaches</h2>
-            {/* In the My Approaches section, render each approach as a compact card/button */}
             <div className="space-y-6">
                 {userNotes.length > 0 ? userNotes.slice(0, 50).map(note => (
                     <div key={note.id} className={`transition-all duration-300 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-4 rounded-xl border border-gray-700/50 shadow-lg backdrop-blur-md relative group ${expandedNoteId === note.id ? 'ring-2 ring-cyan-400' : ''}`}
@@ -170,7 +169,20 @@ const ProblemDetailPage = () => {
                         )}
                     </div>
                 )) : (
-                    <p className="text-center text-gray-500">You haven't added any approaches for this problem yet.</p>
+                    <div className="flex flex-col items-center justify-center py-8">
+                        <p className="text-center text-gray-400 text-lg mb-4">You haven't added any approaches for this problem yet.</p>
+                        {currentUser && (
+                            <button
+                                className="px-6 py-2 bg-gradient-to-r from-cyan-700 to-purple-700 text-white rounded-xl font-bold shadow-lg border border-cyan-400 hover:from-cyan-800 hover:to-purple-800 transition"
+                                onClick={() => {
+                                    const form = document.getElementById('add-note-form');
+                                    if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }}
+                            >
+                                + Add Your First Note
+                            </button>
+                        )}
+                    </div>
                 )}
             </div>
 
@@ -248,7 +260,7 @@ const ProblemDetailPage = () => {
 
             {/* Always show the add note form for logged-in users */}
             {currentUser && (
-                <div className="mt-12 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-8 rounded-xl border border-purple-500/20 shadow-xl backdrop-blur-md">
+                <div id="add-note-form" className="mt-12 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-8 rounded-xl border border-purple-500/20 shadow-xl backdrop-blur-md">
                     <h3 className="text-2xl font-bold text-white mb-4">Add Your Note / Approach</h3>
                     <form onSubmit={handleAddNote} className="space-y-4">
                         <div>

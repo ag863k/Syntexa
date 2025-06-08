@@ -59,7 +59,8 @@ public class AuthController {
             );
             return ResponseEntity.ok(jwtResponse);
         } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Invalid username or password");
+            // More detailed error for frontend
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Invalid username or password. If you just registered, try signing up again or contact support.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }

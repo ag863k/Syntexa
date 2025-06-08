@@ -21,12 +21,13 @@ const LoginPage = () => {
                 navigate("/problems"); // Redirect to problems hub after login
             },
             (error) => {
-                const resMessage = 
-                    (error.response?.data?.message) || 
-                    error.response?.data || 
-                    error.message || 
-                    error.toString();
-                
+                // Show the backend error message directly for clarity
+                let resMessage = error;
+                if (error && error.response && typeof error.response.data === 'string') {
+                    resMessage = error.response.data;
+                } else if (error && error.message) {
+                    resMessage = error.message;
+                }
                 setMessage(resMessage);
                 setLoading(false);
             }
