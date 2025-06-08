@@ -23,14 +23,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final AuthenticationProvider authenticationProvider;
-    private final JwtAuthenticationFilter jwtAuthFilter;
-
-    public SecurityConfig(AuthenticationProvider authenticationProvider, JwtAuthenticationFilter jwtAuthFilter) {
-        this.authenticationProvider = authenticationProvider;
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -49,7 +41,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+        HttpSecurity http,
+        AuthenticationProvider authenticationProvider,
+        JwtAuthenticationFilter jwtAuthFilter
+    ) throws Exception {
         http
             .cors(withDefaults())
             .csrf(csrf -> csrf.disable())
