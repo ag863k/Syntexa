@@ -69,7 +69,7 @@ public class AuthController {
             return ResponseEntity.ok(jwtResponse);
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                 .body("Error: Invalid username or password");
+            .body("Error: Invalid username or password");
         }
     }
 }
