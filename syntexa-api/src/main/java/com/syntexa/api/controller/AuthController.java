@@ -14,10 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -37,36 +34,38 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         try {
+            // Create new User instance and populate it from the request
             User newUser = new User();
             newUser.setUsername(signUpRequest.getUsername());
             newUser.setEmail(signUpRequest.getEmail());
             newUser.setPassword(signUpRequest.getPassword());
+            
+            // Pass the user to the service layer for registration
             User registeredUser = userService.registerUser(newUser);
-            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully! Welcome " + registeredUser.getUsername());
+            String message = "User registered successfully! Welcome " + registeredUser.getUsername();
+            return ResponseEntity.status(HttpStatus.CREATED).body(message);
         } catch (IllegalArgumentException e) {
+            // Handle errors like duplicate username/email from the service layer
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getUsername(),
-                            loginRequest.getPassword()
-                    )
+                new UsernamePasswordAuthenticationToken(
+                    loginRequest.getUsername(),
+                    loginRequest.getPassword()
+                )
             );
+            // Cast the authenticated principal to your User type (ensure your configuration supports this)
             User user = (User) authentication.getPrincipal();
             String jwtToken = jwtService.generateToken(user);
-            JwtResponse jwtResponse = new JwtResponse(
-                    jwtToken,
-                    user.getId(),
-                    user.getUsername(),
-                    user.getEmail()
-            );
+            JwtResponse jwtResponse = new JwtResponse(jwtToken, user.getId(), user.getUsername(), user.getEmail());
             return ResponseEntity.ok(jwtResponse);
         } catch (AuthenticationException e) {
+            // Return an unauthorized status code for invalid credentials
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Invalid username or password");
         }
     }
