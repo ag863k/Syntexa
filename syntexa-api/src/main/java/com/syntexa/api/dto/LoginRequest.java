@@ -2,8 +2,10 @@ package com.syntexa.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data 
+@Data
+@NoArgsConstructor
 public class LoginRequest {
 
     @NotBlank(message = "Username cannot be blank")
