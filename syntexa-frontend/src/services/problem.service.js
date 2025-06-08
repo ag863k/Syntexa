@@ -45,11 +45,33 @@ const addNoteToProblem = async (problemId, noteData) => {
     }
 };
 
+// Update note
+const updateNote = async (problemId, noteId, noteData) => {
+    try {
+        const response = await axios.put(API_URL + `problems/${problemId}/notes/${noteId}`, noteData, { headers: authHeader() });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || error.message;
+    }
+};
+
+// Delete note
+const deleteNote = async (problemId, noteId) => {
+    try {
+        const response = await axios.delete(API_URL + `problems/${problemId}/notes/${noteId}`, { headers: authHeader() });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || error.message;
+    }
+};
+
 const ProblemService = {
     getAllProblems,
     getProblemById,
     createProblem,
     addNoteToProblem,
+    updateNote,
+    deleteNote,
 };
 
 export default ProblemService;

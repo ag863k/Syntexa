@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AuthService from '../services/auth.service';
 
 const HomePage = () => {
     const currentUser = AuthService.getCurrentUser();
     const currentYear = new Date().getFullYear();
+
+    useEffect(() => {
+        // Optionally, you could fetch user-specific data here if needed
+    }, [currentUser]);
 
     return (
         <div className="flex flex-col justify-center items-center text-center min-h-[85vh] px-4 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 text-white">
@@ -30,6 +34,15 @@ const HomePage = () => {
                             style={{boxShadow:'0 4px 16px 0 rgba(80,0,120,0.15)'}}
                         >
                             Sign Up
+                        </Link>
+                    )}
+                    {currentUser && (
+                        <Link
+                            to="/mynotes"
+                            className="inline-block py-3 px-8 font-semibold rounded-xl border border-cyan-500/60 text-cyan-300 hover:bg-cyan-800/60 hover:text-white shadow-xl backdrop-blur-md transition-colors ml-2"
+                            style={{boxShadow:'0 4px 16px 0 rgba(0,200,255,0.10)'}}
+                        >
+                            My Notes
                         </Link>
                     )}
                 </div>

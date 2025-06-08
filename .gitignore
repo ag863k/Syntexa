@@ -2,3 +2,5 @@
 /.vscode/
 
 render-prod.env
+
+node_modules/

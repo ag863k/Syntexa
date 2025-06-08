@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import ProblemService from '../services/problem.service';
 import AuthService from '../services/auth.service';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { copyToClipboard } from '../utils/clipboard';
 
 const ProblemDetailPage = () => {
     const { id } = useParams();
@@ -14,6 +17,13 @@ const ProblemDetailPage = () => {
     const [noteTitle, setNoteTitle] = useState('');
     const [noteContent, setNoteContent] = useState('');
     const [submitting, setSubmitting] = useState(false);
+
+    // Edit/delete state
+    const [editingNoteId, setEditingNoteId] = useState(null);
+    const [editNoteTitle, setEditNoteTitle] = useState('');
+    const [editNoteContent, setEditNoteContent] = useState('');
+    const [editSubmitting, setEditSubmitting] = useState(false);
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
     const fetchProblem = useCallback(() => {
         ProblemService.getProblemById(id).then(
@@ -57,6 +67,36 @@ const ProblemDetailPage = () => {
         );
     };
 
+    // Edit note handler
+    const handleEditNote = (note) => {
+        setEditingNoteId(note.id);
+        setEditNoteTitle(note.approachTitle);
+        setEditNoteContent(note.content);
+    };
+    const handleEditNoteSubmit = (e) => {
+        e.preventDefault();
+        setEditSubmitting(true);
+        ProblemService.updateNote(id, editingNoteId, {
+            approachTitle: editNoteTitle,
+            content: editNoteContent
+        }).then(() => {
+            setEditingNoteId(null);
+            setEditSubmitting(false);
+            fetchProblem();
+        }, (error) => {
+            alert('Failed to update note: ' + (error.response?.data?.message || error.toString()));
+            setEditSubmitting(false);
+        });
+    };
+    const handleDeleteNote = (noteId) => {
+        ProblemService.deleteNote(id, noteId).then(() => {
+            setDeleteConfirmId(null);
+            fetchProblem();
+        }, (error) => {
+            alert('Failed to delete note: ' + (error.response?.data?.message || error.toString()));
+        });
+    };
+
     if (loading) return <p className="text-center text-cyan-400">Loading Problem Details...</p>;
     if (error) return <p className="text-center text-red-500">Error: Could not load the problem.</p>;
 
@@ -72,11 +112,44 @@ const ProblemDetailPage = () => {
             <h2 className="text-3xl font-bold text-purple-400 mb-6">Collaborative Notes</h2>
 
             <div className="space-y-6">
-                {problem.notes && problem.notes.length > 0 ? problem.notes.map(note => (
-                    <div key={note.id} className="bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-6 rounded-xl border border-gray-700/50 shadow-lg backdrop-blur-md">
-                        <h3 className="text-xl font-semibold text-purple-400">{note.approachTitle}</h3>
-                        <p className="text-sm text-gray-500 mb-4">by {note.author ? note.author.username : 'Unknown'}</p>
-                        <pre className="text-gray-300 bg-gray-900/80 p-4 rounded-md whitespace-pre-wrap font-mono text-sm shadow-inner"><code>{note.content}</code></pre>
+                {problem.notes && problem.notes.length > 0 ? problem.notes.slice(0, 50).map(note => (
+                    <div key={note.id} className="bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-6 rounded-xl border border-gray-700/50 shadow-lg backdrop-blur-md relative group">
+                        {editingNoteId === note.id ? (
+                            <form onSubmit={handleEditNoteSubmit} className="space-y-3">
+                                <input type="text" value={editNoteTitle} onChange={e => setEditNoteTitle(e.target.value)} className="w-full p-2 rounded bg-gray-800 text-white border border-cyan-400" />
+                                <textarea value={editNoteContent} onChange={e => setEditNoteContent(e.target.value)} rows="6" className="w-full p-2 rounded bg-gray-800 text-white border border-cyan-400 font-mono" />
+                                <div className="flex gap-2 justify-end">
+                                    <button type="button" onClick={() => setEditingNoteId(null)} className="px-3 py-1 rounded bg-gray-700 text-gray-300 border border-gray-600">Cancel</button>
+                                    <button type="submit" className="px-3 py-1 rounded bg-cyan-700 text-white border border-cyan-700" disabled={editSubmitting}>{editSubmitting ? 'Saving...' : 'Save'}</button>
+                                </div>
+                            </form>
+                        ) : (
+                            <>
+                                <h3 className="text-xl font-semibold text-purple-400">{note.approachTitle}</h3>
+                                <p className="text-sm text-gray-500 mb-4">by {note.author ? note.author.username : 'Unknown'}</p>
+                                <SyntaxHighlighter language="javascript" style={vscDarkPlus} customStyle={{background:'transparent', padding:0, margin:0}} wrapLongLines>
+                                    {note.content}
+                                </SyntaxHighlighter>
+                                <div className="flex gap-2 mt-4">
+                                    <button onClick={() => copyToClipboard(window.location.href + `#note-${note.id}`)} className="px-3 py-1 rounded bg-gray-800 text-cyan-300 border border-cyan-700 hover:bg-cyan-900/40 transition">Copy Link</button>
+                                    {currentUser && note.author && currentUser.username === note.author.username && (
+                                        <>
+                                            <button onClick={() => handleEditNote(note)} className="px-3 py-1 rounded bg-gray-800 text-purple-300 border border-purple-700 hover:bg-purple-900/40 transition">Edit</button>
+                                            <button onClick={() => setDeleteConfirmId(note.id)} className="px-3 py-1 rounded bg-gray-800 text-red-300 border border-red-700 hover:bg-red-900/40 transition">Delete</button>
+                                        </>
+                                    )}
+                                </div>
+                                {deleteConfirmId === note.id && (
+                                    <div className="mt-2 p-3 bg-gray-900 border border-red-700 rounded shadow-xl">
+                                        <p className="text-red-400 mb-2">Are you sure you want to delete this approach?</p>
+                                        <div className="flex gap-2 justify-end">
+                                            <button onClick={() => setDeleteConfirmId(null)} className="px-3 py-1 rounded bg-gray-700 text-gray-300 border border-gray-600">Cancel</button>
+                                            <button onClick={() => handleDeleteNote(note.id)} className="px-3 py-1 rounded bg-red-700 text-white border border-red-700">Delete</button>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
                 )) : (
                     <p className="text-center text-gray-500">No notes have been added for this problem yet. Be the first!</p>

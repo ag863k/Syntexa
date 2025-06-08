@@ -7,6 +7,7 @@ import SignupPage from './pages/SignupPage';
 import ProblemsListPage from './pages/ProblemsListPage';
 import ProblemDetailPage from './pages/ProblemDetailPage';
 import HomePage from './pages/HomePage';
+import MyNotesPage from './pages/MyNotesPage';
 
 const AppContent = () => {
     const [currentUser, setCurrentUser] = useState(undefined);
@@ -56,6 +57,7 @@ const AppContent = () => {
                     <Route path="/signup" element={<SignupPage />} />
                     <Route path="/problems" element={<ProblemsListPage />} />
                     <Route path="/problems/:id" element={<ProblemDetailPage />} />
+                    <Route path="/mynotes" element={<MyNotesPage />} />
                     <Route path="/" element={<HomePage />} />
                 </Routes>
             </main>

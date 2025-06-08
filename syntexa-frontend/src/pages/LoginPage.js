@@ -17,7 +17,6 @@ const LoginPage = () => {
         AuthService.login(username, password).then(
             () => {
                 navigate("/problems"); // Redirect to problems hub after login
-                window.location.reload(); // Reload to update navbar state
             },
             (error) => {
                 const resMessage = 

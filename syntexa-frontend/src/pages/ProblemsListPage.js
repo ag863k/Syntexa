@@ -18,8 +18,8 @@ const ProblemsListPage = () => {
 
     const fetchProblems = () => {
         ProblemService.getAllProblems().then(
-            (response) => {
-                setProblems(response.data);
+            (data) => { // Fix: use data directly
+                setProblems(data);
                 setLoading(false);
             },
             (error) => {

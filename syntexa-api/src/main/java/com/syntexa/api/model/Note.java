@@ -49,4 +49,12 @@ public class Note {
     public void setAuthor(User author) {
         this.author = author;
     }
+
+    public Problem getProblem() {
+        return this.problem;
+    }
+
+    public User getAuthor() {
+        return this.author;
+    }
 }
