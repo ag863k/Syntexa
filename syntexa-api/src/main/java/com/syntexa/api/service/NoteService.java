@@ -37,6 +37,7 @@ public class NoteService {
         Note newNote = new Note();
         newNote.setApproachTitle(request.getApproachTitle());
         newNote.setContent(request.getContent());
+        newNote.setLanguage(request.getLanguage());
         newNote.setProblem(problem);
         newNote.setAuthor(author);
 
@@ -58,6 +59,7 @@ public class NoteService {
         }
         note.setApproachTitle(request.getApproachTitle());
         note.setContent(request.getContent());
+        note.setLanguage(request.getLanguage());
         return noteRepository.save(note);
     }
 

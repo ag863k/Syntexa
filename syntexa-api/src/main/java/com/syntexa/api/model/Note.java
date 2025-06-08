@@ -20,6 +20,9 @@ public class Note {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Column(nullable = true)
+    private String language;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id", nullable = false)
     @JsonIgnoreProperties("notes")
@@ -56,5 +59,13 @@ public class Note {
 
     public User getAuthor() {
         return this.author;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

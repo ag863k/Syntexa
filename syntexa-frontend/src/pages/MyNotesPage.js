@@ -105,8 +105,9 @@ const MyNotesPage = () => {
               <div className="mb-2 flex flex-col md:flex-row md:items-center md:justify-between">
                 <h2 className="text-2xl font-semibold text-purple-300">{note.approachTitle}</h2>
                 <span className="text-xs text-gray-400 mt-2 md:mt-0">{note.problem?.title ? `Problem: ${note.problem.title}` : `Problem ID: ${note.problem?.id}`}</span>
+                <span className="text-xs text-cyan-400 mt-2 md:mt-0 ml-2">{note.language ? `Language: ${note.language.charAt(0).toUpperCase() + note.language.slice(1)}` : 'Language: JavaScript'}</span>
               </div>
-              <SyntaxHighlighter language="javascript" style={vscDarkPlus} customStyle={{background:'transparent', padding:0, margin:0}} wrapLongLines>
+              <SyntaxHighlighter language={note.language || 'javascript'} style={vscDarkPlus} customStyle={{background:'transparent', padding:0, margin:0}} wrapLongLines>
                 {note.content}
               </SyntaxHighlighter>
               <div className="mt-2 text-sm text-gray-500">Created by you</div>
