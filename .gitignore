@@ -4,3 +4,4 @@
 render-prod.env
 
 node_modules/
+/syntexa-frontend/node_modules/

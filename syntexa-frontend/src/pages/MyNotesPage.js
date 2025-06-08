@@ -16,6 +16,7 @@ const MyNotesPage = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('newest');
+  const [problemFilter, setProblemFilter] = useState('');
   const currentUser = AuthService.getCurrentUser();
 
   useEffect(() => {
@@ -32,6 +33,15 @@ const MyNotesPage = () => {
         setError('Failed to fetch your notes.');
         setLoading(false);
       });
+    // Poll for updates every 30 seconds in background
+    const interval = setInterval(() => {
+      axios.get('https://syntexa-api.onrender.com/api/v1/notes/mine', {
+        headers: { Authorization: 'Bearer ' + currentUser.token }
+      })
+        .then(res => setNotes(res.data))
+        .catch(() => {});
+    }, 30000);
+    return () => clearInterval(interval);
   }, [currentUser]);
 
   function filterAndSortNotes(notes) {
@@ -57,7 +67,6 @@ const MyNotesPage = () => {
 
   // Unique problem titles for filter dropdown
   const problemTitles = Array.from(new Set(notes.map(n => n.problem?.title).filter(Boolean)));
-  const [problemFilter, setProblemFilter] = useState('');
   const notesToShow = problemFilter ? filteredNotes.filter(n => n.problem?.title === problemFilter) : filteredNotes;
 
   return (

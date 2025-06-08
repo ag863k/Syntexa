@@ -1,18 +1,39 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AuthService from '../services/auth.service';
+import ProblemService from '../services/problem.service';
 
 const HomePage = () => {
     const currentUser = AuthService.getCurrentUser();
     const currentYear = new Date().getFullYear();
+    const [profile, setProfile] = useState(null);
 
     useEffect(() => {
-        // Optionally, you could fetch user-specific data here if needed
+        if (currentUser) {
+            ProblemService.getCurrentUserProfile().then(setProfile);
+        }
     }, [currentUser]);
+
+    // Show a banner if logged in
+    const loggedInBanner = currentUser ? (
+        <div className="w-full mb-6 p-4 rounded-xl bg-gradient-to-r from-cyan-900 via-gray-900 to-gray-800 border border-cyan-500/40 text-cyan-200 font-semibold shadow-lg text-center">
+            Logged in as <span className="font-bold">{currentUser.username}</span>. You can add, edit, and manage your notes and approaches!
+        </div>
+    ) : null;
+
+    // Professional user profile at top
+    const userProfileBanner = profile ? (
+        <div className="w-full mb-6 p-4 rounded-xl bg-gradient-to-r from-cyan-900 via-gray-900 to-gray-800 border border-cyan-500/40 text-cyan-200 font-semibold shadow-lg text-center flex flex-col md:flex-row md:items-center md:justify-between">
+            <span>Logged in as <span className="font-bold">{profile.username}</span> (ID: {profile.id})</span>
+            <span className="text-xs text-gray-400 mt-2 md:mt-0">Email: {profile.email}</span>
+        </div>
+    ) : null;
 
     return (
         <div className="flex flex-col justify-center items-center text-center min-h-[85vh] px-4 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 text-white">
             <main className="flex-grow flex flex-col justify-center items-center">
+                {userProfileBanner}
+                {loggedInBanner}
                 <h1 className="text-5xl md:text-7xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 mb-6 drop-shadow-[0_4px_24px_rgba(80,0,120,0.5)]">
                     Welcome to Syntexa
                 </h1>

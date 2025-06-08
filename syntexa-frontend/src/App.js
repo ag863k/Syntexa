@@ -15,9 +15,17 @@ const AppContent = () => {
 
     useEffect(() => {
         const user = AuthService.getCurrentUser();
-        if (user) {
+        setCurrentUser(user);
+    }, []);
+
+    // Listen for login/signup events and refresh user state
+    useEffect(() => {
+        const onStorage = () => {
+            const user = AuthService.getCurrentUser();
             setCurrentUser(user);
-        }
+        };
+        window.addEventListener('storage', onStorage);
+        return () => window.removeEventListener('storage', onStorage);
     }, []);
 
     const logOut = () => {

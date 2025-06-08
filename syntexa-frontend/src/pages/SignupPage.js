@@ -36,9 +36,12 @@ const SignupPage = () => {
 
         AuthService.signup(username, email, password).then(
             (response) => {
-                setMessage(response.data);
+                setMessage("Signup successful! You can now log in.");
                 setSuccessful(true);
                 setLoading(false);
+                // Clear any previous user and force reload user state
+                localStorage.removeItem("user");
+                window.dispatchEvent(new Event('storage'));
             },
             (error) => {
                 const resMessage = (error.response?.data) || error.message || error.toString();

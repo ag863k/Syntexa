@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProblemService from '../services/problem.service';
 import AuthService from '../services/auth.service';
+import { copyToClipboard } from '../utils/clipboard';
 
 const ProblemsListPage = () => {
     const [problems, setProblems] = useState([]);
@@ -10,11 +11,20 @@ const ProblemsListPage = () => {
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [newProblemTitle, setNewProblemTitle] = useState('');
     const [newProblemDescription, setNewProblemDescription] = useState('');
+    const [profile, setProfile] = useState(null);
     const currentUser = AuthService.getCurrentUser();
 
     useEffect(() => {
         fetchProblems();
+        const interval = setInterval(fetchProblems, 30000); // auto-refresh every 30s
+        return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        if (currentUser) {
+            ProblemService.getCurrentUserProfile().then(setProfile);
+        }
+    }, [currentUser]);
 
     const fetchProblems = () => {
         ProblemService.getAllProblems().then(
@@ -48,14 +58,23 @@ const ProblemsListPage = () => {
     if (loading) return <p className="text-center text-cyan-400 mt-8 text-xl">Loading Problems...</p>;
     if (error) return <p className="text-center mt-8 text-red-500">Error: {error}</p>;
 
+    // Professional user profile at top
+    const userProfileBanner = profile ? (
+        <div className="w-full mb-6 p-4 rounded-xl bg-gradient-to-r from-cyan-900 via-gray-900 to-gray-800 border border-cyan-500/40 text-cyan-200 font-semibold shadow-lg text-center flex flex-col md:flex-row md:items-center md:justify-between">
+            <span>Logged in as <span className="font-bold">{profile.username}</span> (ID: {profile.id})</span>
+            <span className="text-xs text-gray-400 mt-2 md:mt-0">Email: {profile.email}</span>
+        </div>
+    ) : null;
+
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 min-h-[85vh] rounded-2xl shadow-2xl border border-gray-800/60 backdrop-blur-md" style={{boxShadow:'0 8px 32px 0 rgba(31,38,135,0.25)'}}>
+            {userProfileBanner}
             <div className="flex justify-between items-center my-8">
                 <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 drop-shadow-[0_4px_24px_rgba(80,0,120,0.5)]">
                     Coding Notes Hub
                 </h1>
                 {currentUser && (
-                    <button onClick={() => setShowCreateForm(!showCreateForm)} className="py-2 px-4 bg-gradient-to-r from-purple-700 via-gray-900 to-gray-800 hover:from-purple-800 hover:to-gray-900 rounded-xl text-white font-bold transition-all shadow-lg border border-purple-700/40">
+                    <button onClick={() => setShowCreateForm(!showCreateForm)} className="py-2 px-4 bg-gradient-to-r from-purple-700 via-gray-900 to-gray-800 hover:from-purple-800 hover:to-gray-900 rounded-xl text-white font-bold transition-all shadow-lg border border-purple-700/40 ml-4">
                         {showCreateForm ? 'Cancel' : '+ Add New Problem'}
                     </button>
                 )}
@@ -91,11 +110,14 @@ const ProblemsListPage = () => {
                                 {problem.description || "No description available."}
                             </p>
                         </div>
-                        <Link to={`/problems/${problem.id}`} className="mt-4 block">
-                            <button className="w-full text-center py-2 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-purple-700 via-gray-900 to-gray-800 hover:from-purple-800 hover:to-gray-900 transition-all duration-300 shadow-lg border border-purple-700/40">
-                                View Notes ({problem.notes ? problem.notes.length : 0})
-                            </button>
-                        </Link>
+                        <div className="flex gap-2 mt-4">
+                            <Link to={`/problems/${problem.id}`} className="mt-4 block">
+                                <button className="w-full text-center py-2 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-purple-700 via-gray-900 to-gray-800 hover:from-purple-800 hover:to-gray-900 transition-all duration-300 shadow-lg border border-purple-700/40">
+                                    View & Add Notes ({problem.notes ? problem.notes.length : 0})
+                                </button>
+                            </Link>
+                            <button onClick={() => copyToClipboard(window.location.origin + `/problems/${problem.id}`)} className="px-3 py-1 rounded bg-gray-800 text-cyan-300 border border-cyan-700 hover:bg-cyan-900/40 transition">Copy Problem Link</button>
+                        </div>
                     </div>
                 ))}
             </div>

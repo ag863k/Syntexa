@@ -16,6 +16,8 @@ const LoginPage = () => {
 
         AuthService.login(username, password).then(
             () => {
+                setLoading(false);
+                window.dispatchEvent(new Event('storage'));
                 navigate("/problems"); // Redirect to problems hub after login
             },
             (error) => {

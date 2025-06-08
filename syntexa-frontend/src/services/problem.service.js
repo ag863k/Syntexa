@@ -65,6 +65,15 @@ const deleteNote = async (problemId, noteId) => {
     }
 };
 
+const getCurrentUserProfile = async () => {
+    try {
+        const response = await axios.get("https://syntexa-api.onrender.com/api/v1/problems/1/notes/me", { headers: authHeader() });
+        return response.data;
+    } catch (error) {
+        return null;
+    }
+};
+
 const ProblemService = {
     getAllProblems,
     getProblemById,
@@ -72,6 +81,7 @@ const ProblemService = {
     addNoteToProblem,
     updateNote,
     deleteNote,
+    getCurrentUserProfile,
 };
 
 export default ProblemService;

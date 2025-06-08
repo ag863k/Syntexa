@@ -1,6 +1,7 @@
 package com.syntexa.api.controller;
 
 import com.syntexa.api.dto.NoteCreateRequest;
+import com.syntexa.api.dto.UserProfileDTO;
 import com.syntexa.api.model.Note;
 import com.syntexa.api.model.User;
 import com.syntexa.api.service.NoteService;
@@ -81,5 +82,14 @@ public class NoteController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+        }
+        // Only return safe user info
+        return ResponseEntity.ok(new UserProfileDTO(user.getId(), user.getUsername(), user.getEmail()));
     }
 }
