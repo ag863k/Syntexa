@@ -33,9 +33,9 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-[80vh] px-4 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-            <div className="w-full max-w-md p-8 space-y-6 bg-slate-800/50 rounded-xl shadow-lg backdrop-blur-sm border border-cyan-500/20">
-                <h2 className="text-3xl font-bold text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+        <div className="flex items-center justify-center min-h-[80vh] px-4 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+            <div className="w-full max-w-md p-8 space-y-6 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 rounded-2xl shadow-2xl border border-cyan-500/20 backdrop-blur-md" style={{boxShadow:'0 8px 32px 0 rgba(31,38,135,0.37)'}}>
+                <h2 className="text-3xl font-bold text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 drop-shadow-[0_4px_24px_rgba(80,0,120,0.5)]">
                     Welcome Back
                 </h2>
                 <p className="text-center text-gray-400">
@@ -54,7 +54,7 @@ const LoginPage = () => {
                             name="username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="w-full p-3 text-white bg-gray-700/50 rounded-md border border-gray-600 focus:border-purple-400 focus:ring focus:ring-purple-400 focus:ring-opacity-50 transition"
+                            className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-purple-400 focus:ring focus:ring-purple-400 focus:ring-opacity-50 transition shadow-inner"
                             required
                         />
                     </div>
@@ -67,20 +67,20 @@ const LoginPage = () => {
                             name="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-3 text-white bg-gray-700/50 rounded-md border border-gray-600 focus:border-purple-400 focus:ring focus:ring-purple-400 focus:ring-opacity-50 transition"
+                            className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-purple-400 focus:ring focus:ring-purple-400 focus:ring-opacity-50 transition shadow-inner"
                             required
                         />
                     </div>
                     <button 
                         type="submit" 
-                        className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 rounded-md text-white font-bold transition-all duration-300 disabled:opacity-50"
+                        className="w-full py-3 px-4 bg-gradient-to-r from-purple-700 via-gray-900 to-gray-800 hover:from-purple-800 hover:to-gray-900 rounded-xl text-white font-bold transition-all duration-300 shadow-lg border border-purple-700/40 disabled:opacity-50"
                         disabled={loading}
                     >
                         {loading ? 'Signing in...' : 'Sign In'}
                     </button>
                 </form>
                 {message && (
-                    <div className="mt-4 p-3 text-center text-sm rounded-md bg-red-800/50 border border-red-500/50 text-red-200">
+                    <div className="mt-4 p-3 text-center text-sm rounded-md bg-red-900/60 border border-red-500/50 text-red-200 shadow-inner">
                         {message}
                     </div>
                 )}
