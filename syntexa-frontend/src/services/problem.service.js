@@ -15,6 +15,7 @@ const getAllProblems = async () => {
     });
     return response.data;
   } catch (error) {
+    console.error("Error fetching all problems:", error.response ? error.response.data : error);
     throw error;
   }
 };
@@ -26,6 +27,7 @@ const getProblemById = async (id) => {
     });
     return response.data;
   } catch (error) {
+    console.error(`Error fetching problem with id ${id}:`, error.response ? error.response.data : error);
     throw error;
   }
 };
@@ -37,6 +39,7 @@ const createProblem = async (problemData) => {
     });
     return response.data;
   } catch (error) {
+    console.error("Error creating problem:", error.response ? error.response.data : error);
     throw error;
   }
 };
@@ -50,6 +53,7 @@ const addNoteToProblem = async (problemId, noteData) => {
     );
     return response.data;
   } catch (error) {
+    console.error(`Error adding note to problem with id ${problemId}:`, error.response ? error.response.data : error);
     throw error;
   }
 };

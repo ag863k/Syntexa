@@ -7,8 +7,12 @@ const signup = async (username, email, password) => {
     const response = await axios.post(`${API_URL}signup`, { username, email, password });
     return response.data;
   } catch (error) {
-
-    throw error;
+    console.error("Signup error:", error.response ? error.response.data : error);
+    const resMessage =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      "Signup failed, please try again.";
+    throw new Error(resMessage);
   }
 };
 
@@ -20,7 +24,12 @@ const login = async (username, password) => {
     }
     return response.data;
   } catch (error) {
-    throw error;
+    console.error("Login error:", error.response ? error.response.data : error);
+    const resMessage =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      "Login failed, please try again.";
+    throw new Error(resMessage);
   }
 };
 
