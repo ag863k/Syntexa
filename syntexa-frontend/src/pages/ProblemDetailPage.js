@@ -25,6 +25,9 @@ const ProblemDetailPage = () => {
     // State for expanded/collapsed approaches
     const [expandedNoteId, setExpandedNoteId] = useState(null);
 
+    // Edit note state
+    const [editNote, setEditNote] = useState(null);
+
     const fetchProblem = useCallback(() => {
         ProblemService.getProblemById(id).then(
             (response) => {
@@ -38,9 +41,24 @@ const ProblemDetailPage = () => {
         );
     }, [id]);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchProblem();
-    }, [fetchProblem]);
+    }, []);
+
+    // When user changes (e.g. after signup/login), reset all note state
+    useEffect(() => {
+        setEditNote(null);
+        setNoteTitle('');
+        setNoteContent('');
+        setNoteLanguage('javascript');
+        setDeleteConfirmId(null);
+        setExpandedNoteId(null);
+        setProblem(null);
+        setLoading(true);
+        setError(null);
+        if (id) fetchProblem();
+    }, [currentUser, id]);
 
     const handleAddNote = (e) => {
         e.preventDefault();
@@ -69,20 +87,66 @@ const ProblemDetailPage = () => {
         );
     };
 
-    const handleDeleteNote = (noteId) => {
-        ProblemService.deleteNote(id, noteId).then(() => {
-            setDeleteConfirmId(null);
-            fetchProblem();
-        }, (error) => {
-            alert('Failed to delete note: ' + (error.response?.data?.message || error.toString()));
-        });
+    // Edit button handler: set edit state and fill form
+    const handleEditNote = (note) => {
+        setEditNote(note);
+        setNoteTitle(note.approachTitle);
+        setNoteContent(note.content);
+        setNoteLanguage(note.language || 'javascript');
     };
 
-    // Re-add handleEditNote for edit button functionality
-    const handleEditNote = (note) => {
-        // You can implement edit logic here, e.g. open a modal or set state for editing
-        // For now, just alert the note id (or implement your preferred edit UI)
-        alert(`Edit note with ID: ${note.id}`);
+    // Update note handler
+    const handleUpdateNote = (e) => {
+        e.preventDefault();
+        if (!noteTitle || !noteContent) {
+            alert("Title and content cannot be empty.");
+            return;
+        }
+        setSubmitting(true);
+        const noteData = {
+            approachTitle: noteTitle,
+            content: noteContent,
+            language: noteLanguage
+        };
+        ProblemService.updateNote(id, editNote.id, noteData).then(
+            () => {
+                setEditNote(null);
+                setNoteTitle('');
+                setNoteContent('');
+                setNoteLanguage('javascript');
+                setSubmitting(false);
+                fetchProblem();
+            },
+            (error) => {
+                alert("Failed to update note: " + (error.response?.data?.message || error.toString()));
+                setSubmitting(false);
+            }
+        );
+    };
+
+    const cancelEdit = () => {
+        setEditNote(null);
+        setNoteTitle('');
+        setNoteContent('');
+        setNoteLanguage('javascript');
+    };
+
+    // Delete note handler with confirmation (sync with backend)
+    const handleDeleteNote = (noteId) => {
+        if (!window.confirm('Are you sure you want to delete this note/approach?')) return;
+        setSubmitting(true);
+        ProblemService.deleteNote(id, noteId).then(() => {
+            setDeleteConfirmId(null);
+            setSubmitting(false);
+            setEditNote(null);
+            setNoteTitle('');
+            setNoteContent('');
+            setNoteLanguage('javascript');
+            fetchProblem();
+        }, (error) => {
+            setSubmitting(false);
+            alert('Failed to delete note: ' + (error.response?.data?.message || error.toString()));
+        });
     };
 
     // Only show notes/approaches for the current user
@@ -128,40 +192,39 @@ const ProblemDetailPage = () => {
 
             <div className="my-8 border-t border-gray-700"></div>
             
-            <h2 className="text-3xl font-bold text-purple-400 mb-6">My Approaches</h2>
             <div className="space-y-6">
                 {userNotes.length > 0 ? userNotes.slice(0, 50).map(note => (
-                    <div key={note.id} className={`transition-all duration-300 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-4 rounded-xl border border-gray-700/50 shadow-lg backdrop-blur-md relative group ${expandedNoteId === note.id ? 'ring-2 ring-cyan-400' : ''}`}
+                    <div key={note.id} className={`transition-all duration-300 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-4 rounded-xl border border-cyan-400 shadow-lg backdrop-blur-md relative group ${expandedNoteId === note.id ? 'ring-2 ring-cyan-400' : ''}`}
                         style={{cursor:'pointer'}}
                         onClick={() => setExpandedNoteId(expandedNoteId === note.id ? null : note.id)}
                     >
                         <div className="flex items-center gap-3">
                             <span className="inline-block px-3 py-1 rounded-full bg-cyan-900/60 text-cyan-300 text-xs font-bold border border-cyan-700 mr-2">{note.language ? note.language.charAt(0).toUpperCase() + note.language.slice(1) : 'JavaScript'}</span>
-                            <span className="font-semibold text-lg text-purple-300">{note.approachTitle}</span>
+                            <span className="font-semibold text-sm text-purple-200">{note.approachTitle}</span>
                             <span className="ml-auto text-xs text-gray-400">{expandedNoteId === note.id ? 'Click to Collapse' : 'Click to Expand'}</span>
                         </div>
                         {expandedNoteId === note.id && (
-                            <div className="mt-4">
-                                <p className="text-sm text-gray-500 mb-2">by {note.author ? note.author.username : 'Unknown'}</p>
-                                <SyntaxHighlighter language={note.language || 'javascript'} style={vscDarkPlus} customStyle={{background:'transparent', padding:0, margin:0}} wrapLongLines>
+                            <div className="mt-3">
+                                <p className="text-xs text-gray-500 mb-2">by {note.author ? note.author.username : 'Unknown'}</p>
+                                <SyntaxHighlighter language={note.language || 'javascript'} style={vscDarkPlus} customStyle={{background:'transparent', padding:0, margin:0, fontSize:'0.90em'}} wrapLongLines>
                                     {note.content}
                                 </SyntaxHighlighter>
-                                <div className="flex gap-2 mt-4">
-                                    <button onClick={e => {e.stopPropagation(); copyToClipboard(window.location.href + `#note-${note.id}`);}} className="px-3 py-1 rounded bg-gray-800 text-cyan-300 border border-cyan-700 hover:bg-cyan-900/40 transition">Copy Link</button>
-                                    <button onClick={e => {e.stopPropagation(); copyToClipboard(note.content);}} className="px-3 py-1 rounded bg-gray-800 text-cyan-300 border border-cyan-700 hover:bg-cyan-900/40 transition">Copy Code</button>
+                                <div className="flex gap-2 mt-3">
+                                    <button onClick={e => {e.stopPropagation(); copyToClipboard(window.location.href + `#note-${note.id}`);}} className="px-3 py-1 rounded bg-gray-800 text-cyan-300 border border-cyan-700 hover:bg-cyan-900/40 text-xs transition">Copy Link</button>
+                                    <button onClick={e => {e.stopPropagation(); copyToClipboard(note.content);}} className="px-3 py-1 rounded bg-gray-800 text-cyan-300 border border-cyan-700 hover:bg-cyan-900/40 text-xs transition">Copy Code</button>
                                     {currentUser && note.author && currentUser.username === note.author.username && (
                                         <>
-                                            <button onClick={e => {e.stopPropagation(); handleEditNote(note);}} className="px-3 py-1 rounded bg-gray-800 text-purple-300 border border-purple-700 hover:bg-purple-900/40 transition">Edit</button>
-                                            <button onClick={e => {e.stopPropagation(); setDeleteConfirmId(note.id);}} className="px-3 py-1 rounded bg-gray-800 text-red-300 border border-red-700 hover:bg-red-900/40 transition">Delete</button>
+                                            <button onClick={e => {e.stopPropagation(); handleEditNote(note);}} className="px-3 py-1 rounded bg-gray-800 text-purple-300 border border-purple-700 hover:bg-purple-900/40 text-xs transition">Edit</button>
+                                            <button onClick={e => {e.stopPropagation(); handleDeleteNote(note.id);}} className="px-3 py-1 rounded bg-gray-800 text-red-300 border border-red-700 hover:bg-red-900/40 text-xs transition">Delete</button>
                                         </>
                                     )}
                                 </div>
                                 {deleteConfirmId === note.id && (
                                     <div className="mt-2 p-3 bg-gray-900 border border-red-700 rounded shadow-xl">
-                                        <p className="text-red-400 mb-2">Are you sure you want to delete this approach?</p>
+                                        <p className="text-red-400 mb-2 text-sm">Are you sure you want to delete this approach?</p>
                                         <div className="flex gap-2 justify-end">
-                                            <button onClick={e => {e.stopPropagation(); setDeleteConfirmId(null);}} className="px-3 py-1 rounded bg-gray-700 text-gray-300 border border-gray-600">Cancel</button>
-                                            <button onClick={e => {e.stopPropagation(); handleDeleteNote(note.id);}} className="px-3 py-1 rounded bg-red-700 text-white border border-red-700">Delete</button>
+                                            <button onClick={e => {e.stopPropagation(); setDeleteConfirmId(null);}} className="px-3 py-1 rounded bg-gray-700 text-gray-300 border border-gray-600 text-xs">Cancel</button>
+                                            <button onClick={e => {e.stopPropagation(); handleDeleteNote(note.id);}} className="px-3 py-1 rounded bg-red-700 text-white border border-red-700 text-xs">Delete</button>
                                         </div>
                                     </div>
                                 )}
@@ -170,10 +233,10 @@ const ProblemDetailPage = () => {
                     </div>
                 )) : (
                     <div className="flex flex-col items-center justify-center py-8">
-                        <p className="text-center text-gray-400 text-lg mb-4">You haven't added any approaches for this problem yet.</p>
+                        <p className="text-center text-gray-400 text-base mb-4">You haven't added any approaches for this problem yet.</p>
                         {currentUser && (
                             <button
-                                className="px-6 py-2 bg-gradient-to-r from-cyan-700 to-purple-700 text-white rounded-xl font-bold shadow-lg border border-cyan-400 hover:from-cyan-800 hover:to-purple-800 transition"
+                                className="px-6 py-2 bg-gradient-to-r from-cyan-700 to-purple-700 text-white rounded-xl font-bold shadow-lg border border-cyan-400 hover:from-cyan-800 hover:to-purple-800 text-sm transition"
                                 onClick={() => {
                                     const form = document.getElementById('add-note-form');
                                     if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -186,89 +249,22 @@ const ProblemDetailPage = () => {
                 )}
             </div>
 
-            {/* Community Hub Section */}
-            <h2 className="text-3xl font-bold text-cyan-400 mt-12 mb-6">Community Hub</h2>
+            {/* Only keep add note form for logged-in users */}
             {currentUser && (
-                <div className="mb-8 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-6 rounded-xl border border-cyan-500/20 shadow-xl backdrop-blur-md">
-                    <h3 className="text-xl font-bold text-cyan-300 mb-2">Post a Community Coding Snippet</h3>
-                    <form onSubmit={handleAddNote} className="space-y-4">
-                        <div>
-                            <label htmlFor="approachTitle" className="text-sm font-bold text-gray-400 block mb-2">Snippet Title</label>
-                            <input
-                                type="text" value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)}
-                                placeholder="e.g., Fastest Solution"
-                                className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-cyan-700 focus:border-cyan-400 shadow-inner" required
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="content" className="text-sm font-bold text-gray-400 block mb-2">Code Snippet</label>
-                            <textarea
-                                value={noteContent} onChange={(e) => setNoteContent(e.target.value)}
-                                placeholder="Paste your code here..." rows="8"
-                                className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-cyan-700 focus:border-cyan-400 font-mono shadow-inner" required
-                            ></textarea>
-                        </div>
-                        <div>
-                            <label htmlFor="language" className="text-sm font-bold text-gray-400 block mb-2">Language</label>
-                            <select
-                                id="language"
-                                value={noteLanguage}
-                                onChange={e => setNoteLanguage(e.target.value)}
-                                className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-cyan-700 focus:border-cyan-400 shadow-inner"
-                            >
-                                {languageOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                            </select>
-                        </div>
-                        <div className="flex justify-end">
-                            <button type="submit" className="py-2 px-6 bg-gradient-to-r from-cyan-700 via-gray-900 to-gray-800 hover:from-cyan-800 hover:to-gray-900 rounded-xl text-white font-bold shadow-lg border border-cyan-700/40" disabled={submitting}>
-                                {submitting ? 'Posting...' : 'Post to Community'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            )}
-            <div className="space-y-6">
-                {problem && problem.notes && problem.notes.filter(note => !currentUser || !note.author || note.author.username !== currentUser.username).length > 0 ? (
-                    problem.notes.filter(note => !currentUser || !note.author || note.author.username !== currentUser.username).slice(0, 50).map(note => (
-                        <div key={note.id} className="bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-6 rounded-xl border border-cyan-700/50 shadow-lg backdrop-blur-md relative group">
-                            <h3 className="text-xl font-semibold text-cyan-400">{note.approachTitle}</h3>
-                            <p className="text-sm text-gray-500 mb-4">by {note.author ? note.author.username : 'Unknown'} (ID: {note.author ? note.author.id : 'N/A'})</p>
-                            <SyntaxHighlighter language={note.language || 'javascript'} style={vscDarkPlus} customStyle={{background:'transparent', padding:0, margin:0}} wrapLongLines>
-                                {note.content}
-                            </SyntaxHighlighter>
-                            {currentUser && note.author && currentUser.username === note.author.username && (
-                                <div className="flex gap-2 mt-4">
-                                    <button onClick={() => handleEditNote(note)} className="px-3 py-1 rounded bg-gray-800 text-purple-300 border border-purple-700 hover:bg-purple-900/40 transition">Edit</button>
-                                    <button onClick={() => setDeleteConfirmId(note.id)} className="px-3 py-1 rounded bg-gray-800 text-red-300 border border-red-700 hover:bg-red-900/40 transition">Delete</button>
-                                </div>
-                            )}
-                            {deleteConfirmId === note.id && (
-                                <div className="mt-2 p-3 bg-gray-900 border border-red-700 rounded shadow-xl">
-                                    <p className="text-red-400 mb-2">Are you sure you want to delete this community snippet?</p>
-                                    <div className="flex gap-2 justify-end">
-                                        <button onClick={() => setDeleteConfirmId(null)} className="px-3 py-1 rounded bg-gray-700 text-gray-300 border border-gray-600">Cancel</button>
-                                        <button onClick={() => handleDeleteNote(note.id)} className="px-3 py-1 rounded bg-red-700 text-white border border-red-700">Delete</button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ))
-                ) : (
-                    <p className="text-center text-gray-500">No community approaches yet. Be the first to contribute!</p>
-                )}
-            </div>
-
-            {/* Always show the add note form for logged-in users */}
-            {currentUser && (
-                <div id="add-note-form" className="mt-12 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-8 rounded-xl border border-purple-500/20 shadow-xl backdrop-blur-md">
-                    <h3 className="text-2xl font-bold text-white mb-4">Add Your Note / Approach</h3>
-                    <form onSubmit={handleAddNote} className="space-y-4">
+                <div id="add-note-form" className={`mt-12 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-8 rounded-xl border border-purple-500/20 shadow-xl backdrop-blur-md ${editNote ? 'ring-2 ring-cyan-400' : ''}`}>
+                    <h3 className="text-2xl font-bold text-white mb-4">
+                        {editNote ? 'Editing Note / Approach' : 'Add Your Note / Approach'}
+                    </h3>
+                    {editNote && (
+                        <div className="mb-4 text-cyan-300 text-sm font-semibold">You are editing your note. <button className="ml-2 px-2 py-1 bg-gray-700 rounded text-white text-xs" onClick={cancelEdit}>Cancel Edit</button></div>
+                    )}
+                    <form onSubmit={editNote ? handleUpdateNote : handleAddNote} className="space-y-4">
                         <div>
                             <label htmlFor="approachTitle" className="text-sm font-bold text-gray-400 block mb-2">Approach Title</label>
                             <input
                                 type="text" value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)}
                                 placeholder="e.g., Two Pointer Solution"
-                                className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 shadow-inner" required
+                                className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 shadow-inner text-sm" required
                             />
                         </div>
                         <div>
@@ -276,7 +272,7 @@ const ProblemDetailPage = () => {
                             <textarea
                                 value={noteContent} onChange={(e) => setNoteContent(e.target.value)}
                                 placeholder="Explain your approach or paste code here..." rows="10"
-                                className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 font-mono shadow-inner" required
+                                className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 font-mono shadow-inner text-sm" required
                             ></textarea>
                         </div>
                         <div>
@@ -285,14 +281,17 @@ const ProblemDetailPage = () => {
                                 id="language"
                                 value={noteLanguage}
                                 onChange={e => setNoteLanguage(e.target.value)}
-                                className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 shadow-inner"
+                                className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 shadow-inner text-sm"
                             >
                                 {languageOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                             </select>
                         </div>
-                        <div className="flex justify-end">
-                            <button type="submit" className="py-2 px-6 bg-gradient-to-r from-cyan-700 via-gray-900 to-gray-800 hover:from-cyan-800 hover:to-gray-900 rounded-xl text-white font-bold shadow-lg border border-cyan-700/40" disabled={submitting}>
-                                {submitting ? 'Submitting...' : 'Submit Note'}
+                        <div className="flex justify-end gap-2">
+                            {editNote && (
+                                <button type="button" className="py-2 px-6 bg-gray-700 rounded-xl text-white font-bold shadow-lg border border-gray-700/40 text-sm" onClick={cancelEdit} disabled={submitting}>Cancel</button>
+                            )}
+                            <button type="submit" className="py-2 px-6 bg-gradient-to-r from-cyan-700 via-gray-900 to-gray-800 hover:from-cyan-800 hover:to-gray-900 rounded-xl text-white font-bold shadow-lg border border-cyan-700/40 text-sm" disabled={submitting}>
+                                {submitting ? (editNote ? 'Saving...' : 'Submitting...') : (editNote ? 'Save Changes' : 'Submit Note')}
                             </button>
                         </div>
                     </form>

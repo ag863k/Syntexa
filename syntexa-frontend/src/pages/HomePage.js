@@ -14,10 +14,10 @@ const HomePage = () => {
         }
     }, [currentUser]);
 
-    // Show a banner if logged in
+    // Show a banner if logged in (only once at the top)
     const loggedInBanner = currentUser ? (
         <div className="w-full mb-6 p-4 rounded-xl bg-gradient-to-r from-cyan-900 via-gray-900 to-gray-800 border border-cyan-500/40 text-cyan-200 font-semibold shadow-lg text-center">
-            Logged in as <span className="font-bold">{currentUser.username}</span>. You can add, edit, and manage your notes and approaches!
+            Logged in as <span className="font-bold">{currentUser.username}</span>.
         </div>
     ) : null;
 
