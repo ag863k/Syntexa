@@ -88,15 +88,13 @@ const getCurrentUserProfile = async () => {
     }
 };
 
-const ProblemService = {
-    getAllProblems,
-    getProblemById,
-    createProblem,
-    addNoteToProblem,
-    updateNote,
-    deleteNote,
-    shareNote,
-    getCurrentUserProfile,
+export {
+  getAllProblems,
+  getProblemById,
+  createProblem,
+  addNoteToProblem,
+  updateNote,
+  deleteNote,
+  shareNote,
+  getCurrentUserProfile
 };
-
-export default ProblemService;
