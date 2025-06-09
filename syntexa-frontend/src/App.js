@@ -8,6 +8,8 @@ import ProblemsListPage from './pages/ProblemsListPage';
 import ProblemDetailPage from './pages/ProblemDetailPage';
 import HomePage from './pages/HomePage';
 import MyNotesPage from './pages/MyNotesPage';
+import ProblemCreatePage from './pages/ProblemCreatePage';
+import ProblemMultiCreatePage from './pages/ProblemMultiCreatePage';
 
 const AppContent = () => {
     const [currentUser, setCurrentUser] = useState(undefined);
@@ -62,6 +64,8 @@ const AppContent = () => {
                     <Route path="/problems" element={<ProblemsListPage />} />
                     <Route path="/problems/:id" element={<ProblemDetailPage />} />
                     <Route path="/mynotes" element={<MyNotesPage />} />
+                    <Route path="/problems/new" element={<ProblemCreatePage />} />
+                    <Route path="/problems/new-multi" element={<ProblemMultiCreatePage />} />
                     <Route path="/" element={<HomePage />} />
                 </Routes>
             </main>

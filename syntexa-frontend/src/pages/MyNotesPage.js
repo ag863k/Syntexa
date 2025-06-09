@@ -24,11 +24,12 @@ const MyNotesPage = () => {
   const currentUser = AuthService.getCurrentUser();
 
   useEffect(() => {
-    console.log('MyNotesPage useEffect: currentUser', currentUser);
+    // Defensive: always clear loading after 10s
     let timeout = setTimeout(() => {
       setLoading(false);
-      setError('Something went wrong. Please reload.');
-    }, 15000); // 15s failsafe
+      setError('Request timed out. Please try again.');
+    }, 10000);
+
     if (!currentUser) {
       setLoading(false);
       setNotes([]);
@@ -38,29 +39,17 @@ const MyNotesPage = () => {
     setLoading(true);
     ProblemService.getMyNotes()
       .then(res => {
-        setNotes(res);
+        setNotes(Array.isArray(res) ? res : []);
         setLoading(false);
         clearTimeout(timeout);
       })
       .catch(err => {
-        if (err && (err.status === 401 || err.status === 403)) {
-          setError('You must be logged in to view your notes. Please log in.');
-        } else {
-          setError('Failed to fetch your notes.');
-        }
+        setError('Failed to fetch your notes.');
         setLoading(false);
         clearTimeout(timeout);
       });
-    // Poll for updates every 30 seconds in background
-    const interval = setInterval(() => {
-      ProblemService.getMyNotes()
-        .then(res => setNotes(res))
-        .catch(() => {});
-    }, 30000);
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
+    // Remove polling for now to avoid loops
+    return () => clearTimeout(timeout);
   }, [currentUser]);
 
   function filterAndSortNotes(notes) {
@@ -132,7 +121,21 @@ const MyNotesPage = () => {
         </select>
       </div>
       {notesToShow.length === 0 ? (
-        <div className="text-center text-gray-400 text-base sm:text-lg">No notes found.</div>
+        <div className="text-center text-gray-400 text-base sm:text-lg flex flex-col items-center gap-4">
+          <span>No notes found.</span>
+          <a
+            href="/problems/new"
+            className="inline-block px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-semibold shadow transition"
+          >
+            + Create a Problem & Note
+          </a>
+          <a
+            href="/problems/new-multi"
+            className="inline-block px-4 py-2 rounded bg-purple-600 hover:bg-purple-500 text-white font-semibold shadow transition"
+          >
+            + Add Multiple Problems & Notes
+          </a>
+        </div>
       ) : (
         <div className="space-y-8">
           {notesToShow.map(note => (
