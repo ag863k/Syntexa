@@ -24,12 +24,23 @@ const MyNotesPage = () => {
   const currentUser = AuthService.getCurrentUser();
 
   useEffect(() => {
-    if (!currentUser) return;
+    console.log('MyNotesPage useEffect: currentUser', currentUser);
+    let timeout = setTimeout(() => {
+      setLoading(false);
+      setError('Something went wrong. Please reload.');
+    }, 15000); // 15s failsafe
+    if (!currentUser) {
+      setLoading(false);
+      setNotes([]);
+      clearTimeout(timeout);
+      return;
+    }
     setLoading(true);
     ProblemService.getMyNotes()
       .then(res => {
         setNotes(res);
         setLoading(false);
+        clearTimeout(timeout);
       })
       .catch(err => {
         if (err && (err.status === 401 || err.status === 403)) {
@@ -38,6 +49,7 @@ const MyNotesPage = () => {
           setError('Failed to fetch your notes.');
         }
         setLoading(false);
+        clearTimeout(timeout);
       });
     // Poll for updates every 30 seconds in background
     const interval = setInterval(() => {
@@ -45,7 +57,10 @@ const MyNotesPage = () => {
         .then(res => setNotes(res))
         .catch(() => {});
     }, 30000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
   }, [currentUser]);
 
   function filterAndSortNotes(notes) {
