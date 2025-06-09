@@ -3,24 +3,36 @@ import axios from 'axios';
 // IMPORTANT: Your LIVE Render Backend URL
 const API_URL = "https://syntexa-api.onrender.com/api/v1/auth/";
 
+// Helper: Promise with timeout
+function withTimeout(promise, ms = 10000) {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out. Please try again.')), ms))
+    ]);
+}
+
 const signup = async (username, email, password) => {
     try {
-        const response = await axios.post(API_URL + "signup", { username, email, password });
+        const response = await withTimeout(
+            axios.post(API_URL + "signup", { username, email, password })
+        );
         return response.data;
     } catch (error) {
-        throw error.response?.data?.message || error.message;
+        throw error.response?.data?.message || error.message || error.toString();
     }
 };
 
 const login = async (username, password) => {
     try {
-        const response = await axios.post(API_URL + "login", { username, password });
+        const response = await withTimeout(
+            axios.post(API_URL + "login", { username, password })
+        );
         if (response.data.token) {
             localStorage.setItem("user", JSON.stringify(response.data));
         }
         return response.data;
     } catch (error) {
-        throw error.response?.data?.message || error.message;
+        throw error.response?.data?.message || error.message || error.toString();
     }
 };
 

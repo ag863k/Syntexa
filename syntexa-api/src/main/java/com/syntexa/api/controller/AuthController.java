@@ -37,11 +37,14 @@ public class AuthController {
             newUser.setEmail(signUpRequest.getEmail());
             newUser.setPassword(signUpRequest.getPassword());
             userService.registerUser(newUser);
-            // Do NOT return the user object, only a safe message
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully! You can now log in.");
         } catch (IllegalArgumentException e) {
+            org.slf4j.LoggerFactory.getLogger(AuthController.class)
+                .error("Signup failed for user {}: {}", signUpRequest.getUsername(), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(AuthController.class)
+                .error("Unexpected error during signup for user {}: {}", signUpRequest.getUsername(), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
@@ -59,13 +62,12 @@ public class AuthController {
             );
             return ResponseEntity.ok(jwtResponse);
         } catch (AuthenticationException e) {
-            // Add detailed log for failed authentication
             org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Authentication failed for user {}: {}", loginRequest.getUsername(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Invalid username or password. If you just registered, try signing up again or contact support.");
+                .error("Authentication failed for user {}: {}", loginRequest.getUsername(), e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         } catch (Exception e) {
             org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Unexpected error during login for user {}: {}", loginRequest.getUsername(), e.getMessage());
+                .error("Unexpected error during login for user {}: {}", loginRequest.getUsername(), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }

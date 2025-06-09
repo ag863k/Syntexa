@@ -54,13 +54,12 @@ public class UserService implements UserDetailsService {
      * If missing, creates them. Existing users will get it if not present.
      */
     public void createOrEnsureStarterProblemAndNote(User user) {
-        // Check if user already has the starter note (by shareToken)
-        com.syntexa.api.model.Note existingStarter = noteRepository.findByShareToken("starter-note");
+        String starterShareToken = "starter-note-" + user.getId();
+        com.syntexa.api.model.Note existingStarter = noteRepository.findByShareToken(starterShareToken);
         if (existingStarter != null && existingStarter.getAuthor().getId().equals(user.getId())) {
-            // Starter note already exists for this user, do nothing
+            log.info("Starter note already exists for user {}", user.getId());
             return;
         }
-        // Check if the starter problem already exists
         String starterTitle = "Welcome to Syntexa: Your Coding Notes Hub";
         com.syntexa.api.model.Problem starterProblem = problemRepository.findAll().stream()
             .filter(p -> starterTitle.equals(p.getTitle()))
@@ -69,18 +68,22 @@ public class UserService implements UserDetailsService {
         if (starterProblem == null) {
             starterProblem = new com.syntexa.api.model.Problem();
             starterProblem.setTitle(starterTitle);
-            starterProblem.setDescription("This is your starter problem. Here you can see how notes work. You can always add your own problems and notes. This starter note cannot be deleted, but you can edit it to try out the editor.");
+            starterProblem.setDescription("Get started by creating your first coding note! This starter problem is shared by all users.");
             starterProblem = problemRepository.save(starterProblem);
+            log.info("Created global starter problem with id {}", starterProblem.getId());
         }
-        // Create a professional starter note
-        com.syntexa.api.model.Note starterNote = new com.syntexa.api.model.Note();
-        starterNote.setApproachTitle("Starter Note");
-        starterNote.setContent("Welcome! This is your first note. You can edit this note, but you cannot delete it. Try adding your own notes and problems!");
-        starterNote.setLanguage("markdown");
-        starterNote.setShareToken("starter-note");
-        starterNote.setProblem(starterProblem);
-        starterNote.setAuthor(user);
-        noteRepository.save(starterNote);
+        // Only create the starter note if it does not exist for this user
+        if (existingStarter == null) {
+            com.syntexa.api.model.Note starterNote = new com.syntexa.api.model.Note();
+            starterNote.setApproachTitle("How to use Syntexa");
+            starterNote.setContent("Welcome! Use Syntexa to save, organize, and share your coding notes and solutions. Start by creating a new problem and adding your own notes.");
+            starterNote.setLanguage("markdown");
+            starterNote.setShareToken(starterShareToken);
+            starterNote.setProblem(starterProblem);
+            starterNote.setAuthor(user);
+            noteRepository.save(starterNote);
+            log.info("Created starter note for user {}", user.getId());
+        }
     }
 
     @Override
