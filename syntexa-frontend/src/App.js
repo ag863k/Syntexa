@@ -37,23 +37,19 @@ const AppContent = () => {
     return (
         <div className="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 text-white min-h-screen font-sans">
             <nav className="bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-4 border-b border-purple-500/20 backdrop-blur-md sticky top-0 z-50 shadow-2xl">
-                <div className="container mx-auto flex justify-between items-center">
+                <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
                     <Link to="/" className="text-2xl font-bold hover:text-purple-400 transition-colors drop-shadow-[0_2px_8px_rgba(80,0,120,0.2)]">Syntexa</Link>
-                    <div className="flex items-center space-x-6">
-                        <Link to="/mynotes" className="font-medium text-gray-300 hover:text-purple-400 transition-colors">Notes Hub</Link>
+                    <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto gap-2 sm:gap-6 mt-2 sm:mt-0">
+                        <Link to="/mynotes" className="font-medium text-gray-300 hover:text-purple-400 transition-colors w-full sm:w-auto text-center">Notes Hub</Link>
                         {currentUser ? (
-                            <div className="flex items-center space-x-4">
+                            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto">
                                 <span className="font-bold hidden sm:block text-gray-200 drop-shadow-[0_2px_8px_rgba(80,0,120,0.2)]">{currentUser.username}</span>
-                                <button onClick={logOut} className="py-2 px-4 bg-gradient-to-r from-red-700 via-gray-900 to-gray-800 hover:from-red-800 hover:to-gray-900 rounded-xl text-white font-semibold shadow-lg border border-red-700/40">
-                                    Log Out
-                                </button>
+                                <button onClick={logOut} className="py-2 px-4 w-full sm:w-auto bg-gradient-to-r from-red-700 via-gray-900 to-gray-800 hover:from-red-800 hover:to-gray-900 rounded-xl text-white font-semibold shadow-lg border border-red-700/40">Log Out</button>
                             </div>
                         ) : (
-                            <div className="flex items-center space-x-4">
-                                <Link to="/login" className="font-medium text-gray-300 hover:text-purple-400 transition-colors">Login</Link>
-                                <Link to="/signup" className="py-2 px-4 bg-gradient-to-r from-purple-700 via-gray-900 to-gray-800 hover:from-purple-800 hover:to-gray-900 rounded-xl text-white font-bold shadow-lg border border-purple-700/40">
-                                    Sign Up
-                                </Link>
+                            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                                <Link to="/login" className="font-medium text-gray-300 hover:text-purple-400 transition-colors w-full sm:w-auto text-center">Login</Link>
+                                <Link to="/signup" className="py-2 px-4 w-full sm:w-auto bg-gradient-to-r from-purple-700 via-gray-900 to-gray-800 hover:from-purple-800 hover:to-gray-900 rounded-xl text-white font-bold shadow-lg border border-purple-700/40 text-center">Sign Up</Link>
                             </div>
                         )}
                     </div>

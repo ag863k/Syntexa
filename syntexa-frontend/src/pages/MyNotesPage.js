@@ -97,25 +97,25 @@ const MyNotesPage = () => {
   return (
     <div className="max-w-4xl mx-auto py-12 px-2 sm:px-4 md:px-8">
       <h1 className="text-3xl sm:text-4xl font-bold text-purple-400 mb-8 text-center">My Notes & Approaches</h1>
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
         <input
           type="text"
           placeholder="Search notes..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full md:w-1/3 p-3 rounded-lg border border-cyan-700 bg-gray-900 text-white focus:border-cyan-400 shadow-inner text-base sm:text-lg"
+          className="w-full sm:w-1/3 p-3 rounded-lg border border-cyan-700 bg-gray-900 text-white focus:border-cyan-400 shadow-inner text-base sm:text-lg"
         />
         <select
           value={sort}
           onChange={e => setSort(e.target.value)}
-          className="p-3 rounded-lg border border-purple-700 bg-gray-900 text-white focus:border-purple-400 shadow-inner text-base sm:text-lg"
+          className="p-3 rounded-lg border border-purple-700 bg-gray-900 text-white focus:border-purple-400 shadow-inner text-base sm:text-lg w-full sm:w-auto"
         >
           {sortOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
         </select>
         <select
           value={problemFilter}
           onChange={e => setProblemFilter(e.target.value)}
-          className="p-3 rounded-lg border border-gray-700 bg-gray-900 text-white focus:border-cyan-400 shadow-inner text-base sm:text-lg"
+          className="p-3 rounded-lg border border-gray-700 bg-gray-900 text-white focus:border-cyan-400 shadow-inner text-base sm:text-lg w-full sm:w-auto"
         >
           <option value="">All Problems</option>
           {problemTitles.map(title => <option key={title} value={title}>{title}</option>)}
