@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import AuthService from '../services/auth.service';
-import axios from 'axios';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { copyToClipboard } from '../utils/clipboard';
-import { shareNote } from '../services/problem.service';
+import ProblemService, { shareNote } from '../services/problem.service';
 
 const sortOptions = [
   { value: 'newest', label: 'Newest First' },
@@ -27,15 +26,13 @@ const MyNotesPage = () => {
   useEffect(() => {
     if (!currentUser) return;
     setLoading(true);
-    axios.get('https://syntexa-api.onrender.com/api/v1/notes/mine', {
-      headers: { Authorization: 'Bearer ' + currentUser.token }
-    })
+    ProblemService.getMyNotes()
       .then(res => {
-        setNotes(res.data);
+        setNotes(res);
         setLoading(false);
       })
       .catch(err => {
-        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        if (err && (err.status === 401 || err.status === 403)) {
           setError('You must be logged in to view your notes. Please log in.');
         } else {
           setError('Failed to fetch your notes.');
@@ -44,10 +41,8 @@ const MyNotesPage = () => {
       });
     // Poll for updates every 30 seconds in background
     const interval = setInterval(() => {
-      axios.get('https://syntexa-api.onrender.com/api/v1/notes/mine', {
-        headers: { Authorization: 'Bearer ' + currentUser.token }
-      })
-        .then(res => setNotes(res.data))
+      ProblemService.getMyNotes()
+        .then(res => setNotes(res))
         .catch(() => {});
     }, 30000);
     return () => clearInterval(interval);

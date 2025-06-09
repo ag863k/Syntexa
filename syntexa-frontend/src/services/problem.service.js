@@ -88,6 +88,15 @@ const getCurrentUserProfile = async () => {
     }
 };
 
+const getMyNotes = async () => {
+    try {
+        const response = await axios.get(API_URL + "notes/mine", { headers: authHeader() });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || error.message;
+    }
+};
+
 const ProblemService = {
     getAllProblems,
     getProblemById,
@@ -97,7 +106,8 @@ const ProblemService = {
     deleteNote,
     shareNote,
     getCurrentUserProfile,
+    getMyNotes,
 };
 
 export default ProblemService;
-export { shareNote };
+export { shareNote, getMyNotes };

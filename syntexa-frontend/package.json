@@ -3,19 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@mantine/form": "^8.0.2",
-    "@tabler/icons-react": "^3.34.0",
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
     "axios": "^1.9.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2",
     "react-scripts": "^5.0.1",
-    "react-syntax-highlighter": "^15.6.1",
-    "web-vitals": "^2.1.4"
+    "react-syntax-highlighter": "^15.6.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -44,7 +37,6 @@
   "devDependencies": {
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.24",
-    "postcss-simple-vars": "^7.0.1",
     "tailwindcss": "^3.3.5"
   }
 }
