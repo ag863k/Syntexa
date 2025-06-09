@@ -59,9 +59,13 @@ public class AuthController {
             );
             return ResponseEntity.ok(jwtResponse);
         } catch (AuthenticationException e) {
-            // More detailed error for frontend
+            // Add detailed log for failed authentication
+            org.slf4j.LoggerFactory.getLogger(AuthController.class)
+                .error("Authentication failed for user {}: {}", loginRequest.getUsername(), e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Invalid username or password. If you just registered, try signing up again or contact support.");
         } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(AuthController.class)
+                .error("Unexpected error during login for user {}: {}", loginRequest.getUsername(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
