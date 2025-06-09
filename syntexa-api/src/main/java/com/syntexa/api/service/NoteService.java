@@ -80,4 +80,27 @@ public class NoteService {
     public List<Note> getNotesByAuthor(User user) {
         return noteRepository.findAllByAuthor(user);
     }
+
+    // Generate or return existing shareToken for a note (only by owner)
+    public String generateShareToken(Long noteId, User user) {
+        Note note = noteRepository.findById(noteId)
+                .orElseThrow(() -> new IllegalArgumentException("Note not found with id: " + noteId));
+        if (!note.getAuthor().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You are not the author of this note.");
+        }
+        if (note.getShareToken() == null || note.getShareToken().isEmpty()) {
+            // Generate a random, unguessable token
+            String token = java.util.UUID.randomUUID().toString().replace("-", "");
+            note.setShareToken(token);
+            noteRepository.save(note);
+        }
+        return note.getShareToken();
+    }
+
+    // Get a note by shareToken (public, read-only)
+    public Note getNoteByShareToken(String shareToken) {
+        Note note = noteRepository.findByShareToken(shareToken);
+        if (note == null) throw new IllegalArgumentException("Note not found for this share link.");
+        return note;
+    }
 }

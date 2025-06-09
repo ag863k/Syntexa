@@ -11,4 +11,5 @@ import java.util.List;
 public interface NoteRepository extends JpaRepository<Note, Long> {
     // Add custom query methods if needed in the future
     List<Note> findAllByAuthor(User author);
+    Note findByShareToken(String shareToken);
 }

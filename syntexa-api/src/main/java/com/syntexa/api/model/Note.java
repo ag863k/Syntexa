@@ -23,6 +23,9 @@ public class Note {
     @Column(nullable = true)
     private String language;
 
+    @Column(unique = true)
+    private String shareToken;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id", nullable = false)
     @JsonIgnoreProperties("notes")
@@ -67,5 +70,13 @@ public class Note {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public String getShareToken() {
+        return shareToken;
+    }
+
+    public void setShareToken(String shareToken) {
+        this.shareToken = shareToken;
     }
 }

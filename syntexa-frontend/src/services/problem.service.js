@@ -65,6 +65,20 @@ const deleteNote = async (problemId, noteId) => {
     }
 };
 
+// Share a note (returns share URL)
+const shareNote = async (problemId, noteId) => {
+  try {
+    const response = await axios.post(
+      `https://syntexa-api.onrender.com/api/v1/problems/${problemId}/notes/${noteId}/share`,
+      {},
+      { headers: { Authorization: 'Bearer ' + AuthService.getToken() } }
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};
+
 const getCurrentUserProfile = async () => {
     try {
         const response = await axios.get("https://syntexa-api.onrender.com/api/v1/problems/1/notes/me", { headers: authHeader() });
@@ -81,6 +95,7 @@ const ProblemService = {
     addNoteToProblem,
     updateNote,
     deleteNote,
+    shareNote,
     getCurrentUserProfile,
 };
 
