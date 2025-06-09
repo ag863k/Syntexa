@@ -44,7 +44,7 @@ const ProblemDetailPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchProblem();
-    }, []);
+    }, [fetchProblem]);
 
     // When user changes (e.g. after signup/login), reset all note state
     useEffect(() => {
