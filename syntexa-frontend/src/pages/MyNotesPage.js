@@ -68,10 +68,10 @@ const MyNotesPage = () => {
     return filtered;
   }
 
-  const handleShareNote = (noteId) => {
+  const handleShareNote = (noteId, problemId) => {
     setShareLoading(noteId);
     setShareError(null);
-    shareNote(id, noteId)
+    shareNote(problemId, noteId)
       .then((url) => {
         setShareUrl(window.location.origin + url);
         setShareLoading(null);
@@ -137,9 +137,9 @@ const MyNotesPage = () => {
                   {note.content}
                 </SyntaxHighlighter>
               </div>
-              <div className="mt-2 text-xs sm:text-sm text-gray-500 flex flex-wrap items-center gap-2">
+              <div className="mt-2 text-xs sm:text-sm text-gray-500 flex items-center gap-2">
                 Created by you
-                <button className="ml-2 px-2 py-1 rounded bg-green-700 hover:bg-green-600 text-white text-xs font-semibold shadow" onClick={() => handleShareNote(note.id)}>Share</button>
+                <button className="ml-2 px-2 py-1 rounded bg-green-700 hover:bg-green-600 text-white text-xs font-semibold shadow" onClick={() => handleShareNote(note.id, note.problem?.id)}>Share</button>
                 {shareLoading === note.id && <span className="text-cyan-400 text-xs ml-2">Generating...</span>}
                 {shareUrl && (
                   <span className="ml-2 text-xs text-green-400 flex items-center gap-2">
