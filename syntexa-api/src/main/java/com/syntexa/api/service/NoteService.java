@@ -74,6 +74,10 @@ public class NoteService {
         if (!note.getAuthor().getId().equals(user.getId())) {
             throw new AccessDeniedException("You are not the author of this note.");
         }
+        // Prevent deletion of the professional starter note
+        if ("starter-note".equals(note.getShareToken())) {
+            throw new AccessDeniedException("The starter note cannot be deleted. You can edit it, but not delete it.");
+        }
         noteRepository.delete(note);
     }
 

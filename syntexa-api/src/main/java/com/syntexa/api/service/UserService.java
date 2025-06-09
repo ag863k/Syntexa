@@ -38,7 +38,44 @@ public class UserService implements UserDetailsService {
         userToRegister.setPassword(hashedPassword);
         User savedUser = userRepository.save(userToRegister);
         log.info("User registered successfully with ID: {}", savedUser.getId());
+        // --- PROFESSIONAL STARTER PROBLEM & NOTE ---
+        createOrEnsureStarterProblemAndNote(savedUser);
         return savedUser;
+    }
+
+    /**
+     * Ensures the user has a professional, non-deletable starter problem and note.
+     * If missing, creates them. Existing users will get it if not present.
+     */
+    public void createOrEnsureStarterProblemAndNote(User user) {
+        // Check if user already has the starter note
+        boolean hasStarter = false;
+        if (user.getNotes() != null) {
+            hasStarter = user.getNotes().stream().anyMatch(n ->
+                "starter-note".equals(n.getShareToken())
+            );
+        }
+        if (hasStarter) return;
+        // Create a professional starter problem
+        com.syntexa.api.model.Problem starterProblem = new com.syntexa.api.model.Problem();
+        starterProblem.setTitle("Welcome to Syntexa: Your Coding Notes Hub");
+        starterProblem.setDescription("This is your starter problem. Here you can see how notes work. You can always add your own problems and notes. This starter note cannot be deleted, but you can edit it to try out the editor.");
+        com.syntexa.api.model.Problem savedProblem = ((com.syntexa.api.repository.ProblemRepository) org.springframework.beans.factory.BeanFactoryAnnotationUtils.qualifiedBeanOfType(
+            org.springframework.beans.factory.BeanFactoryLocator.INSTANCE.getBeanFactory(null),
+            com.syntexa.api.repository.ProblemRepository.class,
+            null)).save(starterProblem);
+        // Create a professional starter note
+        com.syntexa.api.model.Note starterNote = new com.syntexa.api.model.Note();
+        starterNote.setApproachTitle("Starter Note: How to Use Syntexa");
+        starterNote.setContent("Welcome! This is your first note. You can edit this note to try out the editor, but you cannot delete it. Use Syntexa to organize your coding approaches, solutions, and notes for every problem you solve.");
+        starterNote.setLanguage("markdown");
+        starterNote.setProblem(savedProblem);
+        starterNote.setAuthor(user);
+        starterNote.setShareToken("starter-note"); // Mark as special
+        ((com.syntexa.api.repository.NoteRepository) org.springframework.beans.factory.BeanFactoryAnnotationUtils.qualifiedBeanOfType(
+            org.springframework.beans.factory.BeanFactoryLocator.INSTANCE.getBeanFactory(null),
+            com.syntexa.api.repository.NoteRepository.class,
+            null)).save(starterNote);
     }
 
     @Override
