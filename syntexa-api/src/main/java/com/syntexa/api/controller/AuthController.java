@@ -33,12 +33,12 @@ public class AuthController {
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         try {
             User newUser = new User();
-            // Ensure User class has these methods or replace with appropriate logic
             newUser.setUsername(signUpRequest.getUsername());
             newUser.setEmail(signUpRequest.getEmail());
             newUser.setPassword(signUpRequest.getPassword());
-            User registeredUser = userService.registerUser(newUser);
-            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully! Welcome " + registeredUser.getUsername());
+            userService.registerUser(newUser);
+            // Do NOT return the user object, only a safe message
+            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully! You can now log in.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
