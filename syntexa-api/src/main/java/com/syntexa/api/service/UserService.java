@@ -2,6 +2,8 @@ package com.syntexa.api.service;
 
 import com.syntexa.api.model.User;
 import com.syntexa.api.repository.UserRepository;
+import com.syntexa.api.repository.ProblemRepository;
+import com.syntexa.api.repository.NoteRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,10 +20,14 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProblemRepository problemRepository;
+    private final NoteRepository noteRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ProblemRepository problemRepository, NoteRepository noteRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.problemRepository = problemRepository;
+        this.noteRepository = noteRepository;
     }
 
     public User registerUser(User userToRegister) {
@@ -48,22 +54,14 @@ public class UserService implements UserDetailsService {
      * If missing, creates them. Existing users will get it if not present.
      */
     public void createOrEnsureStarterProblemAndNote(User user) {
-        // Check if user already has the starter note
-        boolean hasStarter = false;
-        if (user.getNotes() != null) {
-            hasStarter = user.getNotes().stream().anyMatch(n ->
-                "starter-note".equals(n.getShareToken())
-            );
-        }
-        if (hasStarter) return;
+        // Check if user already has the starter note (by shareToken)
+        com.syntexa.api.model.Note existingStarter = noteRepository.findByShareToken("starter-note");
+        if (existingStarter != null && existingStarter.getAuthor().getId().equals(user.getId())) return;
         // Create a professional starter problem
         com.syntexa.api.model.Problem starterProblem = new com.syntexa.api.model.Problem();
         starterProblem.setTitle("Welcome to Syntexa: Your Coding Notes Hub");
         starterProblem.setDescription("This is your starter problem. Here you can see how notes work. You can always add your own problems and notes. This starter note cannot be deleted, but you can edit it to try out the editor.");
-        com.syntexa.api.model.Problem savedProblem = ((com.syntexa.api.repository.ProblemRepository) org.springframework.beans.factory.BeanFactoryAnnotationUtils.qualifiedBeanOfType(
-            org.springframework.beans.factory.BeanFactoryLocator.INSTANCE.getBeanFactory(null),
-            com.syntexa.api.repository.ProblemRepository.class,
-            null)).save(starterProblem);
+        com.syntexa.api.model.Problem savedProblem = problemRepository.save(starterProblem);
         // Create a professional starter note
         com.syntexa.api.model.Note starterNote = new com.syntexa.api.model.Note();
         starterNote.setApproachTitle("Starter Note: How to Use Syntexa");
@@ -72,10 +70,7 @@ public class UserService implements UserDetailsService {
         starterNote.setProblem(savedProblem);
         starterNote.setAuthor(user);
         starterNote.setShareToken("starter-note"); // Mark as special
-        ((com.syntexa.api.repository.NoteRepository) org.springframework.beans.factory.BeanFactoryAnnotationUtils.qualifiedBeanOfType(
-            org.springframework.beans.factory.BeanFactoryLocator.INSTANCE.getBeanFactory(null),
-            com.syntexa.api.repository.NoteRepository.class,
-            null)).save(starterNote);
+        noteRepository.save(starterNote);
     }
 
     @Override
