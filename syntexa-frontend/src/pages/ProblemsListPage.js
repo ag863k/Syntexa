@@ -75,7 +75,7 @@ const ProblemsListPage = () => {
             {userProfileBanner}
             <div className="flex justify-between items-center my-8">
                 <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 drop-shadow-[0_4px_24px_rgba(80,0,120,0.5)]">
-                    Coding Notes Hub
+                    Notes Hub
                 </h1>
                 {currentUser && (
                     <button onClick={() => setShowCreateForm(!showCreateForm)} className="py-2 px-4 bg-gradient-to-r from-purple-700 via-gray-900 to-gray-800 hover:from-purple-800 hover:to-gray-900 rounded-xl text-white font-bold transition-all shadow-lg border border-purple-700/40 ml-4">

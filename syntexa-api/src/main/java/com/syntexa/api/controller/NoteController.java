@@ -75,13 +75,12 @@ public class NoteController {
         }
     }
 
-    @GetMapping("/api/v1/notes/mine")
+    @GetMapping("/mine")
     public ResponseEntity<?> getMyNotes(@AuthenticationPrincipal User user) {
-        try {
-            return ResponseEntity.ok(noteService.getNotesByAuthor(user));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
         }
+        return ResponseEntity.ok(noteService.getNotesByAuthor(user));
     }
 
     @GetMapping("/me")

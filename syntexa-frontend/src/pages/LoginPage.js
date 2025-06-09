@@ -18,7 +18,7 @@ const LoginPage = () => {
             () => {
                 setLoading(false);
                 window.dispatchEvent(new Event('storage'));
-                navigate("/problems"); // Redirect to problems hub after login
+                navigate("/mynotes"); // Redirect to notes hub after login
             },
             (error) => {
                 // Show the backend error message directly for clarity

@@ -40,7 +40,7 @@ const AppContent = () => {
                 <div className="container mx-auto flex justify-between items-center">
                     <Link to="/" className="text-2xl font-bold hover:text-purple-400 transition-colors drop-shadow-[0_2px_8px_rgba(80,0,120,0.2)]">Syntexa</Link>
                     <div className="flex items-center space-x-6">
-                        <Link to="/problems" className="font-medium text-gray-300 hover:text-purple-400 transition-colors">Problems Hub</Link>
+                        <Link to="/mynotes" className="font-medium text-gray-300 hover:text-purple-400 transition-colors">Notes Hub</Link>
                         {currentUser ? (
                             <div className="flex items-center space-x-4">
                                 <span className="font-bold hidden sm:block text-gray-200 drop-shadow-[0_2px_8px_rgba(80,0,120,0.2)]">{currentUser.username}</span>
