@@ -1,6 +1,7 @@
 package com.syntexa.api.service;
 
 import com.syntexa.api.dto.NoteCreateRequest;
+import com.syntexa.api.dto.NoteDTO;
 import com.syntexa.api.model.Note;
 import com.syntexa.api.model.Problem;
 import com.syntexa.api.model.User;
@@ -81,8 +82,22 @@ public class NoteService {
         noteRepository.delete(note);
     }
 
-    public List<Note> getNotesByAuthor(User user) {
-        return noteRepository.findAllByAuthor(user);
+    public List<NoteDTO> getNotesByAuthor(User user) {
+        List<Note> notes = noteRepository.findAllByAuthor(user);
+        List<NoteDTO> dtos = new java.util.ArrayList<>();
+        for (Note n : notes) {
+            dtos.add(new NoteDTO(
+                n.getId(),
+                n.getApproachTitle(),
+                n.getContent(),
+                n.getLanguage(),
+                n.getProblem() != null ? n.getProblem().getId() : null,
+                n.getProblem() != null ? n.getProblem().getTitle() : null,
+                n.getShareToken(),
+                "starter-note".equals(n.getShareToken())
+            ));
+        }
+        return dtos;
     }
 
     // Generate or return existing shareToken for a note (only by owner)

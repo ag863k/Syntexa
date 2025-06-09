@@ -90,8 +90,8 @@ const MyNotesPage = () => {
   const filteredNotes = filterAndSortNotes(notes);
 
   // Unique problem titles for filter dropdown
-  const problemTitles = Array.from(new Set(notes.map(n => n.problem?.title).filter(Boolean)));
-  const notesToShow = problemFilter ? filteredNotes.filter(n => n.problem?.title === problemFilter) : filteredNotes;
+  const problemTitles = Array.from(new Set(notes.map(n => n.problemTitle).filter(Boolean)));
+  const notesToShow = problemFilter ? filteredNotes.filter(n => n.problemTitle === problemFilter) : filteredNotes;
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-2 sm:px-4 md:px-8">
@@ -141,8 +141,12 @@ const MyNotesPage = () => {
           {notesToShow.map(note => (
             <div key={note.id} className="bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 p-4 sm:p-6 rounded-xl border border-purple-500/20 shadow-lg backdrop-blur-md flex flex-col gap-2">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
-                <h2 className="text-xl sm:text-2xl font-semibold text-purple-300 break-words">{note.approachTitle}</h2>
-                <span className="text-xs sm:text-sm text-gray-400">{note.problem?.title ? `Problem: ${note.problem.title}` : `Problem ID: ${note.problem?.id}`}</span>
+                <h2 className="text-xl sm:text-2xl font-semibold text-purple-300 break-words">{note.approachTitle}
+                  {note.isStarter && (
+                    <span className="ml-2 px-2 py-1 rounded bg-yellow-500 text-black text-xs font-bold">Starter</span>
+                  )}
+                </h2>
+                <span className="text-xs sm:text-sm text-gray-400">{note.problemTitle ? `Problem: ${note.problemTitle}` : `Problem ID: ${note.problemId}`}</span>
                 <span className="text-xs sm:text-sm text-cyan-400 ml-0 md:ml-2">{note.language ? `Language: ${note.language.charAt(0).toUpperCase() + note.language.slice(1)}` : 'Language: JavaScript'}</span>
               </div>
               <div className="overflow-x-auto rounded-lg">
@@ -161,6 +165,10 @@ const MyNotesPage = () => {
                   </span>
                 )}
                 {shareError && <span className="ml-2 text-xs text-red-400">{shareError}</span>}
+                {/* Only show delete button if not starter note */}
+                {!note.isStarter && (
+                  <button className="ml-2 px-2 py-1 rounded bg-red-700 hover:bg-red-600 text-white text-xs font-semibold shadow">Delete</button>
+                )}
               </div>
             </div>
           ))}

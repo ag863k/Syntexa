@@ -2,14 +2,11 @@ package com.syntexa.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.Data;
 
 @Entity
 @Table(name = "notes")
-@Data
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Note {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,7 +25,7 @@ public class Note {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id", nullable = false)
-    @JsonIgnoreProperties("notes")
+    @JsonIgnoreProperties({"notes", "author", "problem"})
     private Problem problem;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,28 +37,24 @@ public class Note {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getApproachTitle() {
+        return approachTitle;
+    }
+
     public void setApproachTitle(String approachTitle) {
         this.approachTitle = approachTitle;
     }
 
+    public String getContent() {
+        return content;
+    }
+
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public void setProblem(Problem problem) {
-        this.problem = problem;
-    }
-
-    public void setAuthor(User author) {
-        this.author = author;
-    }
-
-    public Problem getProblem() {
-        return this.problem;
-    }
-
-    public User getAuthor() {
-        return this.author;
     }
 
     public String getLanguage() {
@@ -78,5 +71,21 @@ public class Note {
 
     public void setShareToken(String shareToken) {
         this.shareToken = shareToken;
+    }
+
+    public Problem getProblem() {
+        return problem;
+    }
+
+    public void setProblem(Problem problem) {
+        this.problem = problem;
+    }
+
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
     }
 }
