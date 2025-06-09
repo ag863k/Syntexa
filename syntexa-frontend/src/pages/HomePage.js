@@ -40,14 +40,32 @@ const HomePage = () => {
                 <p className="text-gray-300 text-base md:text-lg mb-8 max-w-2xl md:max-w-3xl mx-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)] break-words">
                     Your collaborative Notes Hub to store, share, and refine coding notes and solutions. Stop losing brilliant ideas and start building a collective knowledge base.
                 </p>
-                <div className="flex flex-col md:flex-row gap-4 w-full max-w-lg justify-center">
+                <div className="flex flex-col gap-4 w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-xl items-center md:flex-row md:justify-center md:gap-6">
                     <Link
                         to="/mynotes"
-                        className="flex-1 py-3 px-8 font-semibold rounded-xl bg-gradient-to-r from-cyan-800 via-cyan-900 to-cyan-700 hover:from-cyan-700 hover:to-cyan-900 text-white shadow-2xl border border-cyan-700/60 hover:border-purple-500/60 transition-transform transform hover:scale-105 backdrop-blur-md text-lg md:text-xl"
+                        className="w-full md:w-auto py-3 px-8 font-semibold rounded-xl bg-gradient-to-r from-cyan-800 via-cyan-900 to-cyan-700 hover:from-cyan-700 hover:to-cyan-900 text-white shadow-2xl border border-cyan-700/60 hover:border-purple-500/60 transition-transform transform hover:scale-105 backdrop-blur-md text-lg md:text-xl text-center"
                         style={{boxShadow:'0 8px 32px 0 rgba(31,38,135,0.37)'}}
                     >
                         My Notes
                     </Link>
+                    {!currentUser && (
+                        <Link
+                            to="/signup"
+                            className="w-full md:w-auto py-3 px-8 font-semibold rounded-xl border border-purple-500/60 text-purple-300 hover:bg-purple-800/60 hover:text-white shadow-xl backdrop-blur-md transition-colors text-lg md:text-xl text-center"
+                            style={{boxShadow:'0 4px 16px 0 rgba(80,0,120,0.15)'}}
+                        >
+                            Sign Up
+                        </Link>
+                    )}
+                    {!currentUser && (
+                        <Link
+                            to="/login"
+                            className="w-full md:w-auto py-3 px-8 font-semibold rounded-xl border border-cyan-500/60 text-cyan-300 hover:bg-cyan-800/60 hover:text-white shadow-xl backdrop-blur-md transition-colors text-lg md:text-xl text-center"
+                            style={{boxShadow:'0 4px 16px 0 rgba(0,200,255,0.10)'}}
+                        >
+                            Log In
+                        </Link>
+                    )}
                 </div>
             </main>
             <footer className="text-gray-500 text-sm text-center py-4 mt-8 border-t border-gray-800/60 w-full bg-gradient-to-r from-gray-900/80 to-gray-800/80 backdrop-blur-md">

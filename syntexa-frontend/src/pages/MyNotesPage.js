@@ -30,7 +30,11 @@ const MyNotesPage = () => {
         setLoading(false);
       })
       .catch(err => {
-        setError('Failed to fetch your notes.');
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          setError('You must be logged in to view your notes. Please log in.');
+        } else {
+          setError('Failed to fetch your notes.');
+        }
         setLoading(false);
       });
     // Poll for updates every 30 seconds in background
@@ -59,7 +63,9 @@ const MyNotesPage = () => {
     return filtered;
   }
 
-  if (!currentUser) return <div className="text-center text-lg text-gray-400 mt-12">Please log in to view your notes.</div>;
+  if (!currentUser || error === 'You must be logged in to view your notes. Please log in.') {
+    return <div className="text-center text-lg text-gray-400 mt-12">You must <a href="/login" className="text-cyan-400 underline">log in</a> to view your notes.</div>;
+  }
   if (loading) return <div className="text-center text-cyan-400 mt-12">Loading your notes...</div>;
   if (error) return <div className="text-center text-red-400 mt-12">{error}</div>;
 
