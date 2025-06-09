@@ -60,18 +60,25 @@ public class UserService implements UserDetailsService {
             // Starter note already exists for this user, do nothing
             return;
         }
-        // Create a professional starter problem
-        com.syntexa.api.model.Problem starterProblem = new com.syntexa.api.model.Problem();
-        starterProblem.setTitle("Welcome to Syntexa: Your Coding Notes Hub");
-        starterProblem.setDescription("This is your starter problem. Here you can see how notes work. You can always add your own problems and notes. This starter note cannot be deleted, but you can edit it to try out the editor.");
-        com.syntexa.api.model.Problem savedProblem = problemRepository.save(starterProblem);
+        // Check if the starter problem already exists
+        String starterTitle = "Welcome to Syntexa: Your Coding Notes Hub";
+        com.syntexa.api.model.Problem starterProblem = problemRepository.findAll().stream()
+            .filter(p -> starterTitle.equals(p.getTitle()))
+            .findFirst()
+            .orElse(null);
+        if (starterProblem == null) {
+            starterProblem = new com.syntexa.api.model.Problem();
+            starterProblem.setTitle(starterTitle);
+            starterProblem.setDescription("This is your starter problem. Here you can see how notes work. You can always add your own problems and notes. This starter note cannot be deleted, but you can edit it to try out the editor.");
+            starterProblem = problemRepository.save(starterProblem);
+        }
         // Create a professional starter note
         com.syntexa.api.model.Note starterNote = new com.syntexa.api.model.Note();
         starterNote.setApproachTitle("Starter Note");
         starterNote.setContent("Welcome! This is your first note. You can edit this note, but you cannot delete it. Try adding your own notes and problems!");
         starterNote.setLanguage("markdown");
         starterNote.setShareToken("starter-note");
-        starterNote.setProblem(savedProblem);
+        starterNote.setProblem(starterProblem);
         starterNote.setAuthor(user);
         noteRepository.save(starterNote);
     }
