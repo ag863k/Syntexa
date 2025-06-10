@@ -1,7 +1,8 @@
 import axios from 'axios';
 import AuthService from './auth.service';
 
-const API_URL = "https://syntexa-api.onrender.com/api/v1/";
+// API URL from environment variable, fallback to local development
+const API_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080/api/v1/";
 
 // This helper function gets the JWT from local storage for protected requests
 const authHeader = () => {
@@ -69,7 +70,7 @@ const deleteNote = async (problemId, noteId) => {
 const shareNote = async (problemId, noteId) => {
   try {
     const response = await axios.post(
-      `https://syntexa-api.onrender.com/api/v1/problems/${problemId}/notes/${noteId}/share`,
+      `${API_URL}problems/${problemId}/notes/${noteId}/share`,
       {},
       { headers: { Authorization: 'Bearer ' + AuthService.getToken() } }
     );
@@ -81,7 +82,7 @@ const shareNote = async (problemId, noteId) => {
 
 const getCurrentUserProfile = async () => {
     try {
-        const response = await axios.get("https://syntexa-api.onrender.com/api/v1/problems/1/notes/me", { headers: authHeader() });
+        const response = await axios.get(API_URL + "notes/me", { headers: authHeader() });
         return response.data;
     } catch (error) {
         return null;

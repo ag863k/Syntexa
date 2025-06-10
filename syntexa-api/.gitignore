@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Configuration files with secrets
+src/main/resources/application.properties
+src/main/resources/application-prod.properties
+
 ### STS ###
 .apt_generated
 .classpath
@@ -32,4 +36,6 @@ build/
 ### VS Code ###
 .vscode/
 
+# Environment files
 render-prod.env
+*.env

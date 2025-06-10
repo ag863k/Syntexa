@@ -1,7 +1,52 @@
 # VS Code specific folder/files to ignore
 /.vscode/
 
+# Environment and sensitive files
 render-prod.env
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
 
+# Documentation and test files (not for production)
+FINAL_STATUS_REPORT.md
+TEST_AUTHENTICATION_FLOW.md
+DEPLOYMENT_NOTES.md
+*.test.md
+
+# Node modules
 node_modules/
 /syntexa-frontend/node_modules/
+
+# Build outputs
+/syntexa-frontend/build/
+/syntexa-frontend/dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/settings.json
+.idea/

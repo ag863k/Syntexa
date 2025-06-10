@@ -50,42 +50,40 @@ const SignupPage = () => {
                 setLoading(false);
             }
         );
-    };
-
-    return (
+    };    return (
         <div className="flex items-center justify-center min-h-[80vh] px-4 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
-            <div className="w-full max-w-md p-8 space-y-6 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 rounded-2xl shadow-2xl border border-purple-500/20 backdrop-blur-md" style={{boxShadow:'0 8px 32px 0 rgba(80,0,120,0.25)'}}>
-                <h2 className="text-3xl font-bold text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 drop-shadow-[0_4px_24px_rgba(80,0,120,0.5)]">
+            <div className="w-full max-w-md p-6 sm:p-8 space-y-4 sm:space-y-6 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 rounded-2xl shadow-2xl border border-purple-500/20 backdrop-blur-md" style={{boxShadow:'0 8px 32px 0 rgba(80,0,120,0.25)'}}>
+                <h2 className="text-2xl sm:text-3xl font-bold text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 drop-shadow-[0_4px_24px_rgba(80,0,120,0.5)]">
                     Create an Account
                 </h2>
-                <p className="text-center text-gray-400">
+                <p className="text-center text-gray-400 text-sm sm:text-base">
                     Already have an account?{' '}
                     <Link to="/login" className="font-medium text-purple-400 hover:text-purple-300">
                         Sign In
                     </Link>
                 </p>
-                <form onSubmit={handleSignup} className="space-y-6">
+                <form onSubmit={handleSignup} className="space-y-4 sm:space-y-6">
                     <div>
                         <label htmlFor="username" className="text-sm font-bold text-gray-400 block mb-2">Username</label>
                         <input type="text" name="username" value={username} onChange={(e) => setUsername(e.target.value)}
-                            className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 focus:ring focus:ring-cyan-400 focus:ring-opacity-50 transition shadow-inner" required />
+                            className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 focus:ring focus:ring-cyan-400 focus:ring-opacity-50 transition shadow-inner text-sm sm:text-base" required />
                     </div>
                     <div>
                         <label htmlFor="email" className="text-sm font-bold text-gray-400 block mb-2">Email</label>
                         <input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 focus:ring focus:ring-cyan-400 focus:ring-opacity-50 transition shadow-inner" required />
+                            className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 focus:ring focus:ring-cyan-400 focus:ring-opacity-50 transition shadow-inner text-sm sm:text-base" required />
                     </div>
                     <div>
                         <label htmlFor="password" className="text-sm font-bold text-gray-400 block mb-2">Password</label>
                         <input type="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 focus:ring focus:ring-cyan-400 focus:ring-opacity-50 transition shadow-inner" required />
-                        <div className="mt-2 pl-1">
+                            className="w-full p-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 focus:ring focus:ring-cyan-400 focus:ring-opacity-50 transition shadow-inner text-sm sm:text-base" required />
+                        <div className="mt-2 pl-1 space-y-1">
                             <PasswordRequirement meets={hasMinLength} label="At least 6 characters long" />
                             <PasswordRequirement meets={hasNumber} label="Contains a number" />
                             <PasswordRequirement meets={hasSpecialChar} label="Contains a special character (!@#...)" />
                         </div>
                     </div>
-                    <button type="submit" className="w-full py-3 px-4 bg-gradient-to-r from-purple-700 via-gray-900 to-gray-800 hover:from-purple-800 hover:to-gray-900 rounded-xl text-white font-bold transition-all duration-300 shadow-lg border border-purple-700/40 disabled:opacity-50" disabled={loading}>
+                    <button type="submit" className="w-full py-3 px-4 bg-gradient-to-r from-purple-700 via-gray-900 to-gray-800 hover:from-purple-800 hover:to-gray-900 rounded-xl text-white font-bold transition-all duration-300 shadow-lg border border-purple-700/40 disabled:opacity-50 text-sm sm:text-base" disabled={loading}>
                         {loading ? 'Signing Up...' : 'Sign Up'}
                     </button>
                 </form>

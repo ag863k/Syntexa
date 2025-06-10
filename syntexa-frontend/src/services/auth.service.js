@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// IMPORTANT: Your LIVE Render Backend URL
-const API_URL = "https://syntexa-api.onrender.com/api/v1/auth/";
+// API URL from environment variable, fallback to local development
+const API_URL = process.env.REACT_APP_AUTH_API_URL || "http://localhost:8080/api/v1/auth/";
 
 // Helper: Promise with timeout
 function withTimeout(promise, ms = 10000) {

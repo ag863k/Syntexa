@@ -1,23 +1,120 @@
-# Syntexa: Coding Notes Hub
+# Syntexa - Coding Notes Hub
 
-**Syntexa: Coding Notes Hub** is a collaborative platform where developers come together to share coding problem topics along with their notes, solutions, and various approaches. This pull request represents a major architectural pivot for the Syntexa application—from a "Personalized Coding Challenge Curator" to a more community-driven "Coding Notes Hub."
+A collaborative platform where developers share coding problems, solutions, and notes with secure JWT authentication and mobile-responsive design.
 
----
+## 🚀 Quick Start
 
-## Overview
+### Prerequisites
+- Java 17+
+- Maven 3.6+
+- Node.js 16+
+- PostgreSQL 12+
 
-This major refactor includes:
+### Backend Setup
 
-- **Collaborative Topics:**  
-  Developers can create topics for coding problems and contribute notes, solutions, and different approaches.
+1. **Database Setup**
+   ```sql
+   CREATE DATABASE syntexa_db;
+   CREATE USER syntexa_user WITH PASSWORD 'your_password';
+   GRANT ALL PRIVILEGES ON DATABASE syntexa_db TO syntexa_user;
+   ```
 
-- **Refactored Data Model & API:**  
-  The backend data model, services, and API endpoints have been redesigned to support multi-user collaboration on coding topics and notes.
+2. **Configuration**
+   ```bash
+   cd syntexa-api/src/main/resources
+   cp application.properties.template application.properties
+   ```
+   
+   Edit `application.properties` and update:
+   - Database credentials
+   - JWT secret (generate with: `echo -n "YourSecretKey" | base64`)
 
-- **Enhanced Endpoints:**  
-  New API routes accommodate creating topics, adding notes, updating contributions, and retrieving community-driven content.
+3. **Run Backend**
+   ```bash
+   cd syntexa-api
+   mvn spring-boot:run
+   ```
 
----
+### Frontend Setup
+
+1. **Install Dependencies**
+   ```bash
+   cd syntexa-frontend
+   npm install
+   ```
+
+2. **Environment Configuration (Optional)**
+   ```bash
+   cp .env.template .env
+   # Edit .env to customize API URLs if needed
+   ```
+
+3. **Run Frontend**
+   ```bash
+   npm start
+   ```
+
+## 📱 Features
+
+- **Secure Authentication**: JWT-based user authentication with timeout protection
+- **Notes Management**: Create, edit, share, and organize coding notes
+- **Mobile Responsive**: Optimized for all device sizes with adaptive layouts
+- **Syntax Highlighting**: Code syntax highlighting for multiple programming languages
+- **Problem Sharing**: Collaborative problem-solving platform with unique share tokens
+- **Starter Content**: Automatic starter notes for new users
+
+## 🔒 Security Features
+
+- JWT token-based authentication
+- Password validation with security requirements
+- CORS protection for cross-origin requests
+- Environment variable configuration for sensitive data
+- Secure share token generation for note sharing
+
+## 🛠️ Development
+
+- Backend API: `http://localhost:8080`
+- Frontend App: `http://localhost:3000`
+- API Base URL: `/api/v1/`
+
+## 📦 Deployment
+
+### Backend Deployment
+- Configure environment variables for production
+- Set up PostgreSQL database
+- Use production-grade JWT secrets
+- Enable HTTPS and proper CORS settings
+
+### Frontend Deployment
+- Build production bundle: `npm run build`
+- Configure production API URLs in environment variables
+- Deploy to static hosting service (Netlify, Vercel, etc.)
+
+## 🏗️ Tech Stack
+
+### Backend
+- **Framework**: Spring Boot 3.x with Java 17
+- **Security**: Spring Security with JWT authentication
+- **Database**: PostgreSQL with JPA/Hibernate
+- **Build Tool**: Maven
+
+### Frontend
+- **Framework**: React 18+ with modern hooks
+- **Styling**: Tailwind CSS for responsive design
+- **HTTP Client**: Axios with timeout protection
+- **Syntax Highlighting**: React Syntax Highlighter
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License.
 
 ## Features
 

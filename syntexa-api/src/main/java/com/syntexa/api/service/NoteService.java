@@ -92,9 +92,8 @@ public class NoteService {
                 n.getContent(),
                 n.getLanguage(),
                 n.getProblem() != null ? n.getProblem().getId() : null,
-                n.getProblem() != null ? n.getProblem().getTitle() : null,
-                n.getShareToken(),
-                "starter-note".equals(n.getShareToken())
+                n.getProblem() != null ? n.getProblem().getTitle() : null,                n.getShareToken(),
+                n.getShareToken() != null && n.getShareToken().startsWith("starter-note-")
             ));
         }
         return dtos;
