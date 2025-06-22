@@ -1,33 +1,61 @@
-# Syntexa - Coding Notes Hub
+# # 🚀 Syntexa - Problem Solving & Note Management Platform
 
-A collaborative platform where developers share coding problems, solutions, and notes with secure JWT authentication and mobile-responsive design.
+A full-stack web application for managing problems and collaborative note-taking with secure JWT authentication.
 
-## 🚀 Quick Start
+## 🏗️ Tech Stack
+- **Frontend**: React.js + Tailwind CSS (Netlify)
+- **Backend**: Spring Boot + PostgreSQL (Render)
+- **Authentication**: JWT with auto-refresh
+
+## 🎯 Features
+- ✅ User authentication & authorization
+- ✅ Problem creation and management  
+- ✅ Collaborative note-taking
+- ✅ Note sharing with public links
+- ✅ Mobile-responsive design
+- ✅ Real-time token refresh
+
+## 🚀 Deployment
+See [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) for detailed deployment instructions.
+
+## 🔧 Local Development
 
 ### Prerequisites
+- Node.js 18+
 - Java 17+
-- Maven 3.6+
-- Node.js 16+
-- PostgreSQL 12+
+- PostgreSQL
 
-### Backend Setup
-
-1. **Database Setup**
-   ```sql
-   CREATE DATABASE syntexa_db;
-   CREATE USER syntexa_user WITH PASSWORD 'your_password';
-   GRANT ALL PRIVILEGES ON DATABASE syntexa_db TO syntexa_user;
-   ```
-
-2. **Configuration**
+### Setup
+1. **Backend**:
    ```bash
-   cd syntexa-api/src/main/resources
-   cp application.properties.template application.properties
+   cd syntexa-api
+   cp src/main/resources/application.properties.template src/main/resources/application.properties
+   # Configure your database settings
+   ./mvnw spring-boot:run
    ```
-   
-   Edit `application.properties` and update:
-   - Database credentials
-   - JWT secret (generate with: `echo -n "YourSecretKey" | base64`)
+
+2. **Frontend**:
+   ```bash
+   cd syntexa-frontend
+   npm install
+   npm start
+   ```
+
+## 📱 API Endpoints
+- `POST /api/v1/auth/signup` - User registration
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/refresh` - Token refresh
+- `GET /api/v1/problems` - List problems
+- `GET /api/v1/notes/mine` - Get user notes
+
+## 🔐 Security
+- JWT tokens with configurable expiration
+- BCrypt password hashing
+- CORS protection
+- Environment-based configuration
+
+## 📄 License
+MIT License
 
 3. **Run Backend**
    ```bash

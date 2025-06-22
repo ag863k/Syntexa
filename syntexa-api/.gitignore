@@ -6,7 +6,13 @@ target/
 
 # Configuration files with secrets
 src/main/resources/application.properties
-src/main/resources/application-prod.properties
+src/main/resources/application-*.properties
+*.env
+.env*
+
+# Build scripts (keep them in git)
+!build.sh
+!start.sh
 
 ### STS ###
 .apt_generated
@@ -28,6 +34,13 @@ src/main/resources/application-prod.properties
 /nbbuild/
 /dist/
 /nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+# Logs
+*.log
 /.nb-gradle/
 build/
 !**/src/main/**/build/

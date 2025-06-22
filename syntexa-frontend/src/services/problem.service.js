@@ -1,12 +1,15 @@
 import axios from 'axios';
 import AuthService from './auth.service';
 
-// API URL from environment variable, fallback to local development
-const API_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080/api/v1/";
+// API URL from environment variable with production fallback
+const API_URL = process.env.REACT_APP_API_BASE_URL || 
+    (process.env.NODE_ENV === 'production' ? 
+        "https://syntexa-api.onrender.com/api/v1/" : 
+        "http://localhost:8080/api/v1/");
 
 // This helper function gets the JWT from local storage for protected requests
-const authHeader = () => {
-    const token = AuthService.getValidToken();
+const authHeader = async () => {
+    const token = await AuthService.getSmartToken();
     if (!token) {
         // Token expired or invalid, redirect to login
         window.location.href = '/login';
@@ -35,7 +38,7 @@ const getProblemById = async (id) => {
 
 const createProblem = async (problemData) => {
     try {
-        const response = await axios.post(API_URL + "problems", problemData, { headers: authHeader() });
+        const response = await axios.post(API_URL + "problems", problemData, { headers: await authHeader() });
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || error.message;
@@ -44,7 +47,7 @@ const createProblem = async (problemData) => {
 
 const addNoteToProblem = async (problemId, noteData) => {
     try {
-        const response = await axios.post(API_URL + `problems/${problemId}/notes`, noteData, { headers: authHeader() });
+        const response = await axios.post(API_URL + `problems/${problemId}/notes`, noteData, { headers: await authHeader() });
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || error.message;
@@ -54,7 +57,7 @@ const addNoteToProblem = async (problemId, noteData) => {
 // Update note
 const updateNote = async (problemId, noteId, noteData) => {
     try {
-        const response = await axios.put(API_URL + `problems/${problemId}/notes/${noteId}`, noteData, { headers: authHeader() });
+        const response = await axios.put(API_URL + `problems/${problemId}/notes/${noteId}`, noteData, { headers: await authHeader() });
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || error.message;
@@ -64,7 +67,7 @@ const updateNote = async (problemId, noteId, noteData) => {
 // Delete note
 const deleteNote = async (problemId, noteId) => {
     try {
-        const response = await axios.delete(API_URL + `problems/${problemId}/notes/${noteId}`, { headers: authHeader() });
+        const response = await axios.delete(API_URL + `problems/${problemId}/notes/${noteId}`, { headers: await authHeader() });
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || error.message;
@@ -87,7 +90,7 @@ const shareNote = async (problemId, noteId) => {
 
 const getCurrentUserProfile = async () => {
     try {
-        const response = await axios.get(API_URL + "notes/me", { headers: authHeader() });
+        const response = await axios.get(API_URL + "notes/me", { headers: await authHeader() });
         return response.data;
     } catch (error) {
         return null;
@@ -96,7 +99,7 @@ const getCurrentUserProfile = async () => {
 
 const getMyNotes = async () => {
     try {
-        const response = await axios.get(API_URL + "notes/mine", { headers: authHeader() });
+        const response = await axios.get(API_URL + "notes/mine", { headers: await authHeader() });
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || error.message;

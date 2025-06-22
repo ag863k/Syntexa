@@ -24,20 +24,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
+public class SecurityConfig {    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
+        
+        // Allow multiple origins including Netlify deployments
+        List<String> allowedOrigins = List.of(
             "http://localhost:3000",
             "https://syntexa.netlify.app",
-            "https://your-netlify-app-name.netlify.app"
-        ));
+            "https://main--syntexa.netlify.app", // Auto-deploy branch
+            System.getenv("FRONTEND_URL") != null ? System.getenv("FRONTEND_URL") : "http://localhost:3000"
+        );
+        configuration.setAllowedOrigins(allowedOrigins);
+        
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
+        
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

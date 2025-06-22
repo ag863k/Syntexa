@@ -32,7 +32,17 @@ const LoginPage = () => {
                 setLoading(false);
             }
         );
-    };    return (
+    };
+
+    // Auto-login check on component mount
+    React.useEffect(() => {
+        const user = AuthService.getCurrentUser();
+        if (user && !AuthService.isTokenExpired(user.token)) {
+            navigate("/mynotes");
+        }
+    }, [navigate]);
+
+    return (
         <div className="flex items-center justify-center min-h-[80vh] px-4 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
             <div className="w-full max-w-md p-6 sm:p-8 space-y-6 bg-gradient-to-br from-gray-900/80 via-gray-800/80 to-gray-900/80 rounded-2xl shadow-2xl border border-cyan-500/20 backdrop-blur-md" style={{boxShadow:'0 8px 32px 0 rgba(31,38,135,0.37)'}}>
                 <h2 className="text-2xl sm:text-3xl font-bold text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 drop-shadow-[0_4px_24px_rgba(80,0,120,0.5)]">
