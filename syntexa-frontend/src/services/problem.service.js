@@ -6,8 +6,13 @@ const API_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080/api
 
 // This helper function gets the JWT from local storage for protected requests
 const authHeader = () => {
-    const token = AuthService.getToken();
-    return token ? { Authorization: 'Bearer ' + token } : {};
+    const token = AuthService.getValidToken();
+    if (!token) {
+        // Token expired or invalid, redirect to login
+        window.location.href = '/login';
+        return {};
+    }
+    return { Authorization: 'Bearer ' + token };
 };
 
 const getAllProblems = async () => {

@@ -15,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -69,6 +71,31 @@ public class AuthController {
             org.slf4j.LoggerFactory.getLogger(AuthController.class)
                 .error("Unexpected error during login for user {}: {}", loginRequest.getUsername(), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid token provided");
+            }
+            
+            String token = authHeader.substring(7);
+            String username = jwtService.extractUsername(token);
+            User user = (User) userService.loadUserByUsername(username);
+            
+            // Generate new token
+            String newToken = jwtService.generateToken(user);
+            JwtResponse jwtResponse = new JwtResponse(
+                newToken, user.getId(), user.getUsername(), user.getEmail()
+            );
+            return ResponseEntity.ok(jwtResponse);
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(AuthController.class)
+                .error("Token refresh failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token refresh failed");
         }
     }
 }

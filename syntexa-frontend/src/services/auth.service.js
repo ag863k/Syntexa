@@ -3,8 +3,8 @@ import axios from 'axios';
 // API URL from environment variable, fallback to local development
 const API_URL = process.env.REACT_APP_AUTH_API_URL || "http://localhost:8080/api/v1/auth/";
 
-// Helper: Promise with timeout
-function withTimeout(promise, ms = 10000) {
+// Helper: Promise with timeout - reduced to 5 seconds for faster response
+function withTimeout(promise, ms = 5000) {
     return Promise.race([
         promise,
         new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out. Please try again.')), ms))
@@ -53,5 +53,44 @@ const getToken = () => {
     return user?.token || null;
 };
 
-const AuthService = { signup, login, logout, getCurrentUser, getToken };
+// Check if token is expired
+const isTokenExpired = (token) => {
+    if (!token) return true;
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.exp * 1000 < Date.now();
+    } catch (e) {
+        return true;
+    }
+};
+
+// Get valid token (auto-logout if expired)
+const getValidToken = () => {
+    const user = getCurrentUser();
+    if (!user || !user.token) return null;
+    
+    if (isTokenExpired(user.token)) {
+        logout();
+        return null;
+    }
+    return user.token;
+};
+
+// Enhanced logout with event dispatch
+const enhancedLogout = () => {
+    localStorage.removeItem("user");
+    window.dispatchEvent(new Event('storage'));
+    window.location.href = '/login';
+};
+
+const AuthService = { 
+    signup, 
+    login, 
+    logout, 
+    getCurrentUser, 
+    getToken, 
+    getValidToken,
+    isTokenExpired,
+    enhancedLogout
+};
 export default AuthService;
