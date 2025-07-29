@@ -8,6 +8,8 @@ import com.syntexa.api.security.JwtService;
 import com.syntexa.api.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final UserService userService;
     private final JwtService jwtService;
@@ -37,16 +41,19 @@ public class AuthController {
             newUser.setUsername(signUpRequest.getUsername());
             newUser.setEmail(signUpRequest.getEmail());
             newUser.setPassword(signUpRequest.getPassword());
+
             userService.registerUser(newUser);
-            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully! You can now log in.");
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(new ApiResponse(true, "User registered successfully. Please log in."));
         } catch (IllegalArgumentException e) {
-            org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Signup failed for user {}: {}", signUpRequest.getUsername(), e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            logger.error("Signup failed for user {}: {}", signUpRequest.getUsername(), e.getMessage(), e);
+            return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage()));
         } catch (Exception e) {
-            org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Unexpected error during signup for user {}: {}", signUpRequest.getUsername(), e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+            logger.error("Unexpected error during signup for user {}: {}", signUpRequest.getUsername(), e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(false, "An unexpected error occurred during registration."));
         }
     }
 
@@ -54,47 +61,83 @@ public class AuthController {
     public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(), loginRequest.getPassword()
+                    )
             );
+
             User user = (User) authentication.getPrincipal();
             String jwtToken = jwtService.generateToken(user);
+
             JwtResponse jwtResponse = new JwtResponse(
-                jwtToken, user.getId(), user.getUsername(), user.getEmail()
+                    jwtToken, user.getId(), user.getUsername(), user.getEmail()
             );
+
             return ResponseEntity.ok(jwtResponse);
+
         } catch (AuthenticationException e) {
-            org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Authentication failed for user {}: {}", loginRequest.getUsername(), e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            logger.warn("Authentication failed for user {}: {}", loginRequest.getUsername(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse(false, "Invalid username or password."));
         } catch (Exception e) {
-            org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Unexpected error during login for user {}: {}", loginRequest.getUsername(), e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+            logger.error("Unexpected error during login for user {}: {}", loginRequest.getUsername(), e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(false, "An unexpected error occurred during login."));
         }
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
         try {
-            String authHeader = request.getHeader("Authorization");
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid token provided");
+            String token = extractTokenFromRequest(request);
+
+            if (token == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ApiResponse(false, "No valid token provided."));
             }
-            
-            String token = authHeader.substring(7);
+
             String username = jwtService.extractUsername(token);
             User user = (User) userService.loadUserByUsername(username);
-            
-            // Generate new token
+
             String newToken = jwtService.generateToken(user);
+
             JwtResponse jwtResponse = new JwtResponse(
-                newToken, user.getId(), user.getUsername(), user.getEmail()
+                    newToken, user.getId(), user.getUsername(), user.getEmail()
             );
+
             return ResponseEntity.ok(jwtResponse);
+
         } catch (Exception e) {
-            org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Token refresh failed: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token refresh failed");
+            logger.error("Token refresh failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse(false, "Token refresh failed."));
+        }
+    }
+
+    private String extractTokenFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
+    }
+
+    // Optionally create a generic response wrapper
+    private static class ApiResponse {
+        private final boolean success;
+        private final String message;
+
+        public ApiResponse(boolean success, String message) {
+            this.success = success;
+            this.message = message;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getMessage() {
+            return message;
         }
     }
 }
