@@ -75,7 +75,7 @@ const deleteNote = async (problemId, noteId) => {
 };
 
 // Share a note (returns share URL)
-const shareNote = async (problemId, noteId) => {
+const shareNote = async (noteId, problemId) => {
   try {
     const response = await axios.post(
       `${API_URL}problems/${problemId}/notes/${noteId}/share`,
