@@ -1,36 +1,39 @@
-# VS Code specific folder/files to ignore
-/.vscode/
-
 # Environment and sensitive files
 *.env
-*.env.local
-*.env.development.local
-*.env.test.local
-*.env.production.local
-render-prod.env
+*.env.*
+!.env.template
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Documentation and test files (not for production)
-FINAL_STATUS_REPORT.md
-TEST_AUTHENTICATION_FLOW.md
-DEPLOYMENT_NOTES.md
-DEPLOYMENT.md
-SECURITY_CHECKLIST.md
-*.test.md
-
-# Node modules
-node_modules/
-/syntexa-frontend/node_modules/
+# Configuration files with secrets
+application.properties
+application-*.properties
+!application.properties.template
+!application-test.properties
+!application-h2.properties
 
 # Build outputs
+node_modules/
 /syntexa-frontend/build/
 /syntexa-frontend/dist/
 /syntexa-api/target/
+*.tgz
+*.tar.gz
+
+# Maven specific
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.properties
+!.mvn/wrapper/maven-wrapper.jar
 
 # Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+logs/
 
 # Runtime data
 pids
@@ -38,8 +41,14 @@ pids
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
+# Coverage directory
 coverage/
+*.lcov
+
+# Dependencies
+.npm
+.eslintcache
+.pnpm-debug.log*
 
 # OS generated files
 .DS_Store
@@ -51,13 +60,26 @@ ehthumbs.db
 Thumbs.db
 
 # IDE files
+.vscode/
 .idea/
 *.iml
 *.ipr
 *.iws
+*.swp
+*.swo
+*~
 
 # Temporary files
 tmp/
 temp/
-.vscode/settings.json
-.idea/
+.cache
+.parcel-cache
+
+# Optional npm cache directory
+.node_repl_history
+.yarn-integrity
+
+# Production deployment files
+*.pid.lock
+.next
+.nuxt

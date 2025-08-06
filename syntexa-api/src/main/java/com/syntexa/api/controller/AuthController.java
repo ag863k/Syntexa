@@ -40,12 +40,8 @@ public class AuthController {
             userService.registerUser(newUser);
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully! You can now log in.");
         } catch (IllegalArgumentException e) {
-            org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Signup failed for user {}: {}", signUpRequest.getUsername(), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Unexpected error during signup for user {}: {}", signUpRequest.getUsername(), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
@@ -63,12 +59,8 @@ public class AuthController {
             );
             return ResponseEntity.ok(jwtResponse);
         } catch (AuthenticationException e) {
-            org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Authentication failed for user {}: {}", loginRequest.getUsername(), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         } catch (Exception e) {
-            org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Unexpected error during login for user {}: {}", loginRequest.getUsername(), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
@@ -85,15 +77,12 @@ public class AuthController {
             String username = jwtService.extractUsername(token);
             User user = (User) userService.loadUserByUsername(username);
             
-            // Generate new token
             String newToken = jwtService.generateToken(user);
             JwtResponse jwtResponse = new JwtResponse(
                 newToken, user.getId(), user.getUsername(), user.getEmail()
             );
             return ResponseEntity.ok(jwtResponse);
         } catch (Exception e) {
-            org.slf4j.LoggerFactory.getLogger(AuthController.class)
-                .error("Token refresh failed: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token refresh failed");
         }
     }

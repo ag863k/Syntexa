@@ -10,8 +10,12 @@ cd /opt/render/project/src/syntexa-api
 # Make mvnw executable
 chmod +x ./mvnw
 
+# Clean and compile first to check for errors
+echo "Cleaning and compiling..."
+./mvnw clean compile
+
 # Run Maven build
 echo "Building with Maven..."
-./mvnw clean package -DskipTests
+./mvnw package -DskipTests
 
 echo "Build completed successfully!"
